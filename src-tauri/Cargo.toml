@@ -1,0 +1,36 @@
+[workspace]
+members = ["src-w/core"]
+
+[workspace.package]
+description = "Metadata Master Interface"
+version = "0.1.0"
+authors = ["Rhynia <rhynia_v@outlook.com>"]
+license = "GPL-3"
+edition = "2024"
+
+[workspace.dependencies]
+log = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+
+[package]
+name = "mmi"
+description.workspace = true
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[lib]
+name = "mmi_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+m-core = { path = "src-w/core" }
+tauri = { version = "2", features = [] }
+tauri-plugin-log = "2"
+log.workspace = true
+serde.workspace = true
+serde_json = "1.0"
