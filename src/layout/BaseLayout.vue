@@ -7,7 +7,7 @@ const [leftDrawerOpen, setLeftDrawerOpen] = useToggle(false);
 
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header class="bg-white text-subtitle2 text-black" elevated>
+    <q-header class="bg-white text-subtitle2 text-black" id="base-header">
       <q-toolbar>
         <q-btn dense flat icon="menu" round @click="setLeftDrawerOpen()" />
 

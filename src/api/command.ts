@@ -17,3 +17,7 @@ export function command_metadata_update(opt: MetadataOptional): Promise<string> 
 export function command_metadata_remove(key: string): Promise<void> {
   return invoke('metadata_remove', { key });
 }
+
+export function command_util_resolve_absolute(path: string): Promise<string> {
+  return invoke('util_resolve_absolute', { path });
+}

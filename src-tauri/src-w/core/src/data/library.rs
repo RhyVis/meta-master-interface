@@ -95,20 +95,6 @@ pub fn lib_get_all() -> LibraryResult<Vec<Metadata>> {
     Ok(result)
 }
 
-pub fn lib_new(opt: MetadataOptional) -> LibraryResult<String> {
-    let metadata = Metadata::init_mapped(opt)?;
-    let id = metadata.id.clone();
-    internal_set(id.as_str(), metadata)?;
-    Ok(id)
-}
-
-pub fn lib_patch(key: &str, opt: MetadataOptional) -> LibraryResult<()> {
-    let mut metadata = internal_get(key)?;
-    metadata = metadata.patch(opt)?;
-    internal_set(key, metadata)?;
-    Ok(())
-}
-
 pub fn lib_update(mut opt: MetadataOptional) -> LibraryResult<String> {
     if let Some(id) = opt.id.clone() {
         info!("Updating metadata with id: {}", id);
@@ -124,7 +110,7 @@ pub fn lib_update(mut opt: MetadataOptional) -> LibraryResult<String> {
                     id
                 );
                 opt.id = None;
-                let metadata = Metadata::init_mapped(opt)?;
+                let metadata = Metadata::init(opt)?;
                 let id = metadata.id.clone();
                 internal_set(id.as_str(), metadata)?;
                 Ok(id)
@@ -135,7 +121,7 @@ pub fn lib_update(mut opt: MetadataOptional) -> LibraryResult<String> {
             }
         }
     } else {
-        let metadata = Metadata::init_mapped(opt)?;
+        let metadata = Metadata::init(opt)?;
         let id = metadata.id.clone();
         info!("Creating new metadata with id: {}", id);
         internal_set(id.as_str(), metadata)?;

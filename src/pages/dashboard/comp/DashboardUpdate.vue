@@ -2,7 +2,10 @@
 import { useUpdate } from '@/pages/dashboard/script/useUpdate.ts';
 import { computed, type Ref, ref } from 'vue';
 import type { QForm } from 'quasar';
-import { PlatformOptions, PlatformType } from '@/api/types.ts';
+import { ArchiveType, ArchiveTypeOptions, PlatformOptions, PlatformType } from '@/api/types.ts';
+import { set } from '@vueuse/core';
+import { openPathTo, openSelectFile, openSelectFolder } from '@/api/file-dialog.ts';
+import { generateRandomPassword } from '@/api/util.ts';
 
 const dev = computed(() => import.meta.env.DEV);
 const value = defineModel({
@@ -27,6 +30,10 @@ const {
   cPlatformType,
   cPlatformID,
   cPlatformName,
+  // Helper ARCHIVE methods
+  cArchiveType,
+  cArchivePath,
+  cArchivePassword,
 } = useUpdate(value, formRef as Ref<QForm>);
 
 const emit = defineEmits<{
@@ -36,6 +43,26 @@ const emit = defineEmits<{
 const handleUpdate = async () => {
   if (await doUpdate()) {
     emit('exit');
+  }
+};
+const handleSelectPath = async (fileMode: boolean) => {
+  if (fileMode) {
+    const path = await openSelectFile();
+    if (path) {
+      set(cArchivePath, path);
+    }
+  } else {
+    const path = await openSelectFolder();
+    if (path) {
+      set(cArchivePath, path);
+    }
+  }
+};
+const handlePassword = () => {
+  if (cArchivePassword.value) {
+    set(cArchivePassword, generateRandomPassword());
+  } else {
+    set(cArchivePassword, 'META');
   }
 };
 </script>
@@ -127,6 +154,7 @@ const handleUpdate = async () => {
           dense
           emit-value
           hint="平台"
+          label="平台"
           map-options
           options-dense
         />
@@ -170,6 +198,89 @@ const handleUpdate = async () => {
 
         <!-- Version -->
         <q-input v-model="edit.version" dense hint="版本 [Version]" label="版本" />
+
+        <!-- Archive Info -->
+        <q-select
+          class="full-width"
+          v-model="cArchiveType"
+          :options="ArchiveTypeOptions"
+          dense
+          emit-value
+          hint="存储类型，如压缩包、文件等"
+          label="存储类型"
+          map-options
+          options-dense
+        />
+        <div class="q-mt-sm" v-if="cArchiveType != ArchiveType.Unset">
+          <div v-if="cArchiveType == ArchiveType.CommonFile">
+            <q-field
+              :rules="[() => !!cArchivePath || '必须提供路径']"
+              dense
+              label="文件路径"
+              lazy-rules
+              stack-label
+            >
+              <template #control>
+                <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
+                  {{ cArchivePath ?? '未选择文件' }}
+                </div>
+              </template>
+              <template #after>
+                <q-btn dense flat icon="file_open" @click="handleSelectPath(true)" />
+              </template>
+            </q-field>
+          </div>
+          <div v-else-if="cArchiveType == ArchiveType.Directory">
+            <q-field
+              :rules="[() => !!cArchivePath || '必须提供路径']"
+              dense
+              label="文件夹路径"
+              lazy-rules
+              stack-label
+            >
+              <template #control>
+                <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
+                  {{ cArchivePath ?? '未选择文件夹' }}
+                </div>
+              </template>
+              <template #after>
+                <q-btn dense flat icon="folder" @click="handleSelectPath(false)" />
+              </template>
+            </q-field>
+          </div>
+          <div v-else-if="cArchiveType == ArchiveType.ArchiveFile">
+            <q-field
+              :hint="mode ? '更新为新的压缩包路径' : '选择被压缩的文件夹'"
+              :label="mode ? '存档文件路径' : '源路径'"
+              :rules="[() => !!cArchivePath || '必须提供路径']"
+              dense
+              lazy-rules
+              stack-label
+            >
+              <template #control>
+                <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
+                  {{ cArchivePath ?? '路径缺失' }}
+                </div>
+              </template>
+              <template #after>
+                <q-btn
+                  :icon="mode ? 'folder_zip' : 'folder'"
+                  dense
+                  flat
+                  @click="handleSelectPath(mode)"
+                />
+              </template>
+            </q-field>
+            <q-input v-model="cArchivePassword" dense hint="存档密码" label="密码">
+              <template #after>
+                <q-btn dense flat icon="password" @click="handlePassword">
+                  <q-tooltip> 随机生成密码 </q-tooltip>
+                </q-btn>
+              </template>
+            </q-input>
+          </div>
+          <div v-else>Unexpected Archive Type: {{ cArchiveType }}</div>
+        </div>
       </q-form>
     </q-card-section>
 
@@ -187,6 +298,11 @@ const handleUpdate = async () => {
         <div>cPlatformType: {{ cPlatformType }}</div>
         <div>cPlatformID: {{ cPlatformID }}</div>
         <div>cPlatformName: {{ cPlatformName }}</div>
+        <br />
+        <div class="text-bold">Archive Values</div>
+        <div>cArchiveType: {{ cArchiveType }}</div>
+        <div>cArchivePath: {{ cArchivePath }}</div>
+        <div>cArchivePassword: {{ cArchivePassword }}</div>
         <br />
         <div class="text-bold">Full Content</div>
         <pre>{{ JSON.stringify(edit, null, 2) }}</pre>

@@ -4,6 +4,7 @@ import '@quasar/extras/fontawesome-v6/fontawesome-v6.css';
 import 'quasar/src/css/index.sass';
 
 import { Loading, Notify, Quasar } from 'quasar';
+import quasarLang from 'quasar/lang/zh-CN';
 import { createApp } from 'vue';
 
 import App from '@/App.vue';
@@ -19,6 +20,7 @@ app.use(Quasar, {
     Notify,
     Loading,
   },
+  lang: quasarLang,
 });
 
 app.mount('#app');

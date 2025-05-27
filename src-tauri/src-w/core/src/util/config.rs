@@ -23,6 +23,11 @@ impl Config {
     pub fn get_root(&self) -> PathBuf {
         dir_rel().join(&self.root)
     }
+
+    pub fn get_archive_dir(&self) -> PathBuf {
+        const ARCHIVE_DIR: &str = "archive";
+        self.get_root().join(ARCHIVE_DIR)
+    }
 }
 
 static CONFIG: OnceLock<Config> = OnceLock::new();

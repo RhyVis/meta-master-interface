@@ -1,44 +1,20 @@
 import type { QForm } from 'quasar';
 import type { Ref } from 'vue';
-import type { DistributionPlatform, MetadataOptional } from '@/api/types.ts';
+import type { ArchiveInfo, DistributionPlatform, MetadataOptional } from '@/api/types.ts';
 
 import { cloneDeep } from 'lodash-es';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 
-import { PlatformType } from '@/api/types.ts';
+import { ArchiveType, PlatformType } from '@/api/types.ts';
+import { removeEmptyStrings } from '@/api/util.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 import { get, set } from '@vueuse/core';
 
 export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
   const { notify } = useQuasar();
   const library = useLibraryStore();
-  const current = computed<MetadataOptional | undefined>(() => {
-    const exist = library.data[index.value];
-    if (exist) {
-      const clone = cloneDeep(exist);
-      if (clone.platform === PlatformType.Unknown) {
-        set(cPlatformType, PlatformType.Unknown);
-        set(cPlatformName, '');
-        set(cPlatformID, '');
-      } else if (PlatformType.Steam in clone.platform) {
-        set(cPlatformType, PlatformType.Steam);
-        set(cPlatformID, clone.platform.Steam.id);
-        set(cPlatformName, '');
-      } else if (PlatformType.DLSite in clone.platform) {
-        set(cPlatformType, PlatformType.DLSite);
-        set(cPlatformID, clone.platform.DLSite.id);
-        set(cPlatformName, '');
-      } else if (PlatformType.Other in clone.platform) {
-        set(cPlatformType, PlatformType.Other);
-        set(cPlatformID, clone.platform.Other.id ?? '');
-        set(cPlatformName, clone.platform.Other.name ?? '');
-      }
-      return clone;
-    } else {
-      return undefined;
-    }
-  });
+  const current = computed<MetadataOptional | undefined>(() => library.data[index.value]);
 
   // true if editing an existing item, false if creating a new one
   const mode = computed(() => !!current.value);
@@ -47,10 +23,17 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     alias: [],
     tags: [],
     platform: PlatformType.Unknown,
+    archive_info: ArchiveType.Unset,
   });
 
   const reset = () => {
-    set(edit, { title: '', alias: [], tags: [], platform: PlatformType.Unknown });
+    set(edit, {
+      title: '',
+      alias: [],
+      tags: [],
+      platform: PlatformType.Unknown,
+      archive_info: ArchiveType.Unset,
+    });
     set(cAlias, '');
     set(cTag, '');
     set(cPlatformType, PlatformType.Unknown);
@@ -66,19 +49,19 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     }
     if (!trimInput) {
       notify({
-        message: '别名不能为空',
-        color: 'negative',
+        message: '添加别名不能为空',
+        color: 'warning',
         position: 'top',
-        icon: 'error',
+        icon: 'warning',
       });
       return;
     } else if (edit.value.alias.includes(trimInput)) {
       if (edit.value.alias.includes(trimInput)) {
         notify({
           message: `别名 '${trimInput}' 已存在`,
-          color: 'negative',
+          color: 'warning',
           position: 'top',
-          icon: 'error',
+          icon: 'warning',
         });
         return;
       }
@@ -99,19 +82,19 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     }
     if (!trimInput) {
       notify({
-        message: '别名不能为空',
-        color: 'negative',
+        message: '添加标签不能为空',
+        color: 'warning',
         position: 'top',
-        icon: 'error',
+        icon: 'warning',
       });
       return;
     } else if (edit.value.tags.includes(trimInput)) {
       if (edit.value.tags.includes(trimInput)) {
         notify({
-          message: `别名 '${trimInput}' 已存在`,
-          color: 'negative',
+          message: `标签 '${trimInput}' 已存在`,
+          color: 'warning',
           position: 'top',
-          icon: 'error',
+          icon: 'warning',
         });
         return;
       }
@@ -144,10 +127,46 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     }
   };
 
+  const cArchiveType = ref<ArchiveType>(ArchiveType.Unset);
+  const cArchivePath = ref('');
+  const cArchivePassword = ref('');
+  const mapArchiveInfo = (): ArchiveInfo => {
+    switch (cArchiveType.value) {
+      case ArchiveType.Unset:
+        return ArchiveType.Unset;
+      case ArchiveType.ArchiveFile:
+        return cArchivePassword.value
+          ? {
+              ArchiveFile: {
+                path: cArchivePath.value,
+                password: cArchivePassword.value,
+              },
+            }
+          : {
+              ArchiveFile: {
+                path: cArchivePath.value,
+              },
+            };
+      case ArchiveType.CommonFile:
+        return { CommonFile: { path: cArchivePath.value } };
+      case ArchiveType.Directory:
+        return { Directory: { path: cArchivePath.value } };
+    }
+  };
+
   const doUpdate = async (): Promise<boolean> => {
     if (await formRef.value.validate()) {
       edit.value.platform = mapPlatform();
-      await library.update(get(edit));
+      edit.value.archive_info = mapArchiveInfo();
+
+      const editCopy = removeEmptyStrings(cloneDeep(get(edit)));
+
+      if (!mode.value) {
+        // If we are creating a new item, we need to set the creation flag
+        editCopy['flag_create_archive'] = true;
+      }
+
+      await library.update(editCopy);
       reset();
       return true;
     } else {
@@ -165,7 +184,57 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     () => index.value,
     () => {
       if (current.value) {
-        Object.assign(edit.value, current.value);
+        console.log('Cloning current metadata for editing:', current.value);
+        const clone = cloneDeep(current.value);
+        console.log(clone);
+
+        // Reset the form
+        console.log('Resetting form for editing');
+        reset();
+
+        console.log('Mapping current metadata to edit form: platform', clone.platform);
+        if (clone.platform === PlatformType.Unknown) {
+          set(cPlatformType, PlatformType.Unknown);
+          set(cPlatformName, '');
+          set(cPlatformID, '');
+        } else if (PlatformType.Steam in clone.platform) {
+          set(cPlatformType, PlatformType.Steam);
+          set(cPlatformID, clone.platform.Steam.id);
+          set(cPlatformName, '');
+        } else if (PlatformType.DLSite in clone.platform) {
+          set(cPlatformType, PlatformType.DLSite);
+          set(cPlatformID, clone.platform.DLSite.id);
+          set(cPlatformName, '');
+        } else if (PlatformType.Other in clone.platform) {
+          set(cPlatformType, PlatformType.Other);
+          set(cPlatformID, clone.platform.Other.id ?? '');
+          set(cPlatformName, clone.platform.Other.name ?? '');
+        }
+
+        console.log('Mapping current metadata to edit form: archive_type', clone.archive_info);
+        if (clone.archive_info === ArchiveType.Unset) {
+          console.log(0);
+          set(cArchiveType, ArchiveType.Unset);
+          set(cArchivePath, '');
+          set(cArchivePassword, '');
+        } else if (ArchiveType.ArchiveFile in clone.archive_info) {
+          console.log(1);
+          set(cArchiveType, ArchiveType.ArchiveFile);
+          set(cArchivePath, clone.archive_info.ArchiveFile.path);
+          set(cArchivePassword, clone.archive_info.ArchiveFile.password ?? '');
+        } else if (ArchiveType.CommonFile in clone.archive_info) {
+          console.log(2);
+          set(cArchiveType, ArchiveType.CommonFile);
+          set(cArchivePath, clone.archive_info.CommonFile.path);
+          set(cArchivePassword, '');
+        } else if (ArchiveType.Directory in clone.archive_info) {
+          console.log(3);
+          set(cArchiveType, ArchiveType.Directory);
+          set(cArchivePath, clone.archive_info.Directory.path);
+          set(cArchivePassword, '');
+        }
+
+        Object.assign(edit.value, clone);
       } else {
         reset();
       }
@@ -190,5 +259,9 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     cPlatformType,
     cPlatformID,
     cPlatformName,
+    // Helper ARCHIVE methods
+    cArchiveType,
+    cArchivePath,
+    cArchivePassword,
   };
 };
