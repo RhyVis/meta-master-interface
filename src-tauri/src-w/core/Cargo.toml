@@ -19,3 +19,4 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2"
 const_format = "0.2"
 fs_extra = "1"
+walkdir = "2.5.0"

@@ -3,7 +3,7 @@ members = ["src-w/core"]
 
 [workspace.package]
 description = "Metadata Master Interface"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Rhynia <rhynia_v@outlook.com>"]
 license = "GPL-3"
 edition = "2024"
@@ -40,3 +40,13 @@ tauri-plugin-opener = "2"
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
 tauri-plugin-window-state = "2"
+
+[profile.dev]
+incremental = true
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

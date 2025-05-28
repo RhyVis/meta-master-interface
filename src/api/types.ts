@@ -119,6 +119,7 @@ export type Metadata = {
   publisher?: string;
   version?: string;
   archive_info: ArchiveInfo;
+  archive_size: number;
   deploy_info: DeployInfo;
   time_created: string;
   time_updated: string;

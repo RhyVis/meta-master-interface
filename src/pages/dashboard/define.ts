@@ -4,6 +4,7 @@ import type { Metadata } from '@/api/types.ts';
 import { date } from 'quasar';
 
 import { PlatformType } from '@/api/types.ts';
+import { formatBytes } from '@/api/util.ts';
 
 export const columns: QTableColumn[] = [
   {
@@ -93,6 +94,11 @@ export const columns: QTableColumn[] = [
     name: 'version',
     label: '版本',
     field: (row: Metadata) => row.version ?? '未提供',
+  },
+  {
+    name: 'archive_size',
+    label: '归档大小',
+    field: (row: Metadata) => formatBytes(row.archive_size),
   },
   {
     name: 'time_created',

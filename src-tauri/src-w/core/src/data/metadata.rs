@@ -104,6 +104,12 @@ impl ArchiveInfo {
             }
         }
     }
+    pub fn calculate_size(&self) -> u64 {
+        match self.try_resolve() {
+            This(path) => path.calculate_size().unwrap_or_default(),
+            That(_) => 0,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq, Default)]
@@ -198,6 +204,10 @@ pub struct Metadata {
 
     #[serde(default)]
     #[builder(default)]
+    pub archive_size: u64,
+
+    #[serde(default)]
+    #[builder(default)]
     pub deploy_info: DeployInfo,
 
     #[serde(default = "Utc::now")]
@@ -222,6 +232,7 @@ pub struct MetadataOptional {
     pub publisher: Option<String>,
     pub version: Option<String>,
     pub archive_info: Option<ArchiveInfo>,
+    pub archive_size: Option<u64>,
     pub deploy_info: Option<DeployInfo>,
     pub time_created: Option<DateTime<Utc>>,
     pub time_updated: Option<DateTime<Utc>>,
@@ -333,6 +344,8 @@ impl Metadata {
                 match compress(path, &store_path, password.as_deref(), None) {
                     Ok(_) => {
                         info!("Successfully created archive for metadata as: {}", filename);
+                        builder =
+                            builder.archive_size(store_path.calculate_size().unwrap_or_default());
                         builder = builder.archive_info(ArchiveInfo::ArchiveFile {
                             path: store_path.to_string_lossy().to_string(),
                             password,
@@ -346,13 +359,23 @@ impl Metadata {
             } else {
                 warn!("The flag_create_archive is set, but no valid archive info provided.");
                 builder = builder.archive_info(ArchiveInfo::Unset);
+                builder = builder.archive_size(0u64);
             }
             Ok(builder)
         } else {
             info!("Using provided archive info without compression.");
+            builder = builder.archive_size(
+                archive_info
+                    .as_ref()
+                    .map_or(0, |info| info.calculate_size()),
+            );
             builder = builder.archive_info(archive_info.unwrap_or_default());
             Ok(builder)
         }
+    }
+
+    pub fn mark_update(&mut self) {
+        self.time_updated = Utc::now();
     }
 
     pub fn init(opt: MetadataOptional) -> MetadataResult<Self> {
@@ -398,6 +421,7 @@ impl Metadata {
                     self.deploy_info = DeployInfo::File {
                         path: target_path.to_string_lossy().to_string(),
                     };
+                    self.mark_update();
 
                     info!("File deployed successfully to {}", target_path.display());
                     Ok(true)
@@ -424,6 +448,7 @@ impl Metadata {
                     self.deploy_info = DeployInfo::Directory {
                         path: target_path.to_string_lossy().to_string(),
                     };
+                    self.mark_update();
 
                     info!("Archive deployed successfully to {}", target_path.display());
 
@@ -455,6 +480,7 @@ impl Metadata {
                     self.deploy_info = DeployInfo::Directory {
                         path: target_path.to_string_lossy().to_string(),
                     };
+                    self.mark_update();
 
                     info!(
                         "Directory deployed successfully to {}",
@@ -494,6 +520,7 @@ impl Metadata {
                 info!("Removing deployed file at: {}", path.display());
                 fs::remove_file(&path)?;
                 self.deploy_info = DeployInfo::Unset;
+                self.mark_update();
                 info!("File deployed off successfully.");
                 Ok(true)
             }
@@ -501,6 +528,7 @@ impl Metadata {
                 info!("Removing deployed directory at: {}", path.display());
                 path.clear_dir()?;
                 self.deploy_info = DeployInfo::Unset;
+                self.mark_update();
                 info!("Directory deployed off successfully.");
                 Ok(true)
             }
@@ -522,6 +550,7 @@ impl From<Metadata> for MetadataBuilder {
             .publisher(metadata.publisher)
             .version(metadata.version)
             .archive_info(metadata.archive_info)
+            .archive_size(metadata.archive_size)
             .deploy_info(metadata.deploy_info)
             .time_created(metadata.time_created)
             .time_updated(metadata.time_updated)
