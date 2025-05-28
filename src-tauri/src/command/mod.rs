@@ -1,5 +1,6 @@
 use m_core::data::library::*;
 use m_core::data::metadata::{Metadata, MetadataOptional};
+use m_core::util::ToStringErr;
 use std::env::current_dir;
 use std::path::PathBuf;
 use tauri::command;
@@ -8,22 +9,32 @@ type CommandResult<T> = Result<T, String>;
 
 #[command]
 pub fn metadata_get_all() -> CommandResult<Vec<Metadata>> {
-    lib_get_all().map_err(|e| e.to_string())
+    lib_get_all().string_err()
 }
 
 #[command]
 pub fn metadata_get(key: &str) -> CommandResult<Metadata> {
-    lib_get(key).map_err(|e| e.to_string())
+    lib_get(key).string_err()
 }
 
 #[command]
 pub fn metadata_update(opt: MetadataOptional) -> CommandResult<String> {
-    lib_update(opt).map_err(|e| e.to_string())
+    lib_update(opt).string_err()
 }
 
 #[command]
 pub fn metadata_remove(key: &str) -> CommandResult<bool> {
-    lib_remove(key).map_err(|e| e.to_string())
+    lib_remove(key).string_err()
+}
+
+#[command]
+pub fn library_export() -> CommandResult<()> {
+    lib_export().string_err()
+}
+
+#[command]
+pub fn library_import() -> CommandResult<()> {
+    lib_import().string_err()
 }
 
 #[command]

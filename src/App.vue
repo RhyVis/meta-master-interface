@@ -2,9 +2,7 @@
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 import { onMounted } from 'vue';
 
-const library = useLibraryStore();
-
-onMounted(() => library.reload());
+onMounted(() => useLibraryStore().reload());
 </script>
 
 <template>

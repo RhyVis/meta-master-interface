@@ -13,8 +13,17 @@ const routes: RouteRecordCompose[] = [
     name: 'dashboard',
     component: () => import('@/pages/dashboard/index.vue'),
     meta: {
-      title: 'Dashboard',
+      title: '管理',
       icon: 'home',
+    },
+  },
+  {
+    path: 'settings',
+    name: 'settings',
+    component: () => import('@/pages/settings/index.vue'),
+    meta: {
+      title: '设置',
+      icon: 'settings',
     },
   },
 ];

@@ -18,6 +18,14 @@ export function command_metadata_remove(key: string): Promise<void> {
   return invoke('metadata_remove', { key });
 }
 
+export function command_library_export(): Promise<void> {
+  return invoke('library_export');
+}
+
+export function command_library_import(): Promise<void> {
+  return invoke('library_import');
+}
+
 export function command_util_resolve_absolute(path: string): Promise<string> {
   return invoke('util_resolve_absolute', { path });
 }

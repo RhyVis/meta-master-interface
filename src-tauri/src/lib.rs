@@ -31,6 +31,8 @@ pub fn run() {
             metadata_get,
             metadata_update,
             metadata_remove,
+            library_export,
+            library_import,
             util_resolve_absolute
         ])
         .run(generate_context!())

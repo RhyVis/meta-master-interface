@@ -44,7 +44,7 @@ pub fn compress(
     command.arg("a").arg(format!("-mx={compression_level}"));
 
     if let Some(pwd) = password {
-        command.arg(format!("-p{pwd}"));
+        command.arg(format!("-p{pwd}")).arg("-mhe=on");
     }
 
     command.arg(

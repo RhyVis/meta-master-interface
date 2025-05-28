@@ -1,3 +1,11 @@
 .r-no-sel {
   user-select: none;
 }
+
+.r-drag-region {
+  app-region: drag;
+}
+
+.r-drag-region-disabled {
+  app-region: no-drag;
+}

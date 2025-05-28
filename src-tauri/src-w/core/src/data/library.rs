@@ -3,13 +3,15 @@ use crate::util::config::config_get;
 use const_format::concatcp;
 use log::{error, info, warn};
 use redb::{Database, ReadableTable, TableDefinition};
-use std::error;
 use std::sync::OnceLock;
+use std::{error, fs};
 use thiserror::Error;
 
 const LIB_FILE_STEM: &str = "library";
 const LIB_FILE_EXT: &str = "bin";
+const LIB_EXPORT_EXT: &str = "json";
 const LIB_FILE_NAME: &str = concatcp!(LIB_FILE_STEM, ".", LIB_FILE_EXT);
+const LIB_EXPORT_FILE_NAME: &str = concatcp!(LIB_FILE_STEM, ".", LIB_EXPORT_EXT);
 
 const LIB_TABLE: TableDefinition<&str, Vec<u8>> = TableDefinition::new("LIBRARY");
 
@@ -139,6 +141,40 @@ pub fn lib_remove(key: &str) -> LibraryResult<bool> {
     Ok(removed)
 }
 
+pub fn lib_export() -> LibraryResult<()> {
+    let all_metadata = lib_get_all()?;
+    let export_path = config_get().get_root().join(LIB_EXPORT_FILE_NAME);
+    fs::write(&export_path, serde_json::to_string_pretty(&all_metadata)?)?;
+    info!("Library exported to {}", export_path.display());
+    Ok(())
+}
+
+pub fn lib_import() -> LibraryResult<()> {
+    let import_path = config_get().get_root().join(LIB_EXPORT_FILE_NAME);
+    if !import_path.exists() {
+        return Err(LibraryError::FileSystemError(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "Import file not found",
+        )));
+    }
+
+    let data = fs::read_to_string(&import_path)?;
+    let metadata_list = serde_json::from_str::<Vec<Metadata>>(&data)?;
+
+    let write = internal_lib().begin_write()?;
+    {
+        let mut table = write.open_table(LIB_TABLE)?;
+        for metadata in metadata_list {
+            let raw = bson::to_vec(&metadata)?;
+            table.insert(metadata.id.as_str(), raw)?;
+        }
+    }
+    write.commit()?;
+
+    info!("Library imported from {}", import_path.display());
+    Ok(())
+}
+
 type LibraryResult<T> = Result<T, LibraryError>;
 
 #[derive(Debug, Error)]
@@ -167,6 +203,9 @@ pub enum LibraryError {
     #[error("BSON deserialization error: {0}")]
     DeserializationError(#[from] bson::de::Error),
 
+    #[error("Export/Import with json error: {0}")]
+    JsonError(#[from] serde_json::Error),
+
     #[error("File system error: {0}")]
-    FileSystemError(std::io::Error),
+    FileSystemError(#[from] std::io::Error),
 }
