@@ -1,5 +1,27 @@
 import type { QSelectOption } from 'quasar';
 
+export const enum ContentType {
+  Other = 'Other',
+  Game = 'Game',
+  Novel = 'Novel',
+  Comic = 'Comic',
+  Anime = 'Anime',
+  Music = 'Music',
+  Movie = 'Movie',
+  Software = 'Software',
+}
+
+export const ContentTypeOptions: QSelectOption[] = [
+  { label: '其他', value: ContentType.Other },
+  { label: '游戏', value: ContentType.Game },
+  { label: '小说', value: ContentType.Novel },
+  { label: '漫画', value: ContentType.Comic },
+  { label: '动画', value: ContentType.Anime },
+  { label: '音乐', value: ContentType.Music },
+  { label: '电影', value: ContentType.Movie },
+  { label: '软件', value: ContentType.Software },
+];
+
 export const enum PlatformType {
   Unknown = 'Unknown',
   Steam = 'Steam',
@@ -15,7 +37,7 @@ export const PlatformOptions: QSelectOption[] = [
 ];
 
 export type DistributionPlatform =
-  | 'Unknown'
+  | PlatformType.Unknown
   | {
       Steam: {
         id: string;
@@ -48,7 +70,7 @@ export const ArchiveTypeOptions: QSelectOption[] = [
 ];
 
 export type ArchiveInfo =
-  | 'Unset'
+  | ArchiveType.Unset
   | {
       ArchiveFile: {
         path: string;
@@ -90,6 +112,7 @@ export type Metadata = {
   title: string;
   alias: string[];
   tags: string[];
+  content_type: ContentType;
   platform: DistributionPlatform;
   description?: string;
   developer?: string;

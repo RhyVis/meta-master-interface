@@ -11,12 +11,12 @@ pub fn dir_rel() -> PathBuf {
     {
         let mut base = PathBuf::from(".");
         base.push(".run");
-        return base;
+        base
     }
 
     #[cfg(not(debug_assertions))]
     {
-        return PathBuf::from(".");
+        PathBuf::from(".")
     }
 }
 

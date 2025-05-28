@@ -2,7 +2,13 @@
 import { useUpdate } from '@/pages/dashboard/script/useUpdate.ts';
 import { computed, type Ref, ref } from 'vue';
 import type { QForm } from 'quasar';
-import { ArchiveType, ArchiveTypeOptions, PlatformOptions, PlatformType } from '@/api/types.ts';
+import {
+  ArchiveType,
+  ArchiveTypeOptions,
+  ContentTypeOptions,
+  PlatformOptions,
+  PlatformType,
+} from '@/api/types.ts';
 import { set } from '@vueuse/core';
 import { openPathTo, openSelectFile, openSelectFolder } from '@/api/file-dialog.ts';
 import { generateRandomPassword } from '@/api/util.ts';
@@ -147,6 +153,18 @@ const handlePassword = () => {
             <span class="q-pr-xs">{{ tag }}</span>
           </q-chip>
         </div>
+
+        <!-- Content Type -->
+        <q-select
+          v-model="edit.content_type"
+          :options="ContentTypeOptions"
+          dense
+          emit-value
+          hint="资源的内容类型"
+          label="内容类型"
+          map-options
+          options-dense
+        />
 
         <!-- Distribution Platform -->
         <q-select

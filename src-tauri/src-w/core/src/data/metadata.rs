@@ -31,6 +31,19 @@ pub enum DistributionPlatform {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq, Default)]
+pub enum ContentType {
+    #[default]
+    Other,
+    Game,
+    Novel,
+    Comic,
+    Anime,
+    Music,
+    Movie,
+    Software,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq, Default)]
 pub enum ArchiveInfo {
     #[default]
     Unset,
@@ -157,6 +170,10 @@ pub struct Metadata {
 
     #[serde(default)]
     #[builder(default)]
+    pub content_type: ContentType,
+
+    #[serde(default)]
+    #[builder(default)]
     pub platform: DistributionPlatform,
 
     #[serde(default)]
@@ -198,6 +215,7 @@ pub struct MetadataOptional {
     pub title: Option<String>,
     pub alias: Option<Vec<String>>,
     pub tags: Option<Vec<String>>,
+    pub content_type: Option<ContentType>,
     pub platform: Option<DistributionPlatform>,
     pub description: Option<String>,
     pub developer: Option<String>,
@@ -233,6 +251,9 @@ impl Metadata {
         }
         if let Some(tags) = opt.tags {
             builder = builder.tags(tags);
+        }
+        if let Some(content_type) = opt.content_type {
+            builder = builder.content_type(content_type);
         }
         if let Some(platform) = opt.platform.clone() {
             builder = builder.platform(platform);
@@ -299,10 +320,7 @@ impl Metadata {
                     ),
                     _ => (
                         "Unknown",
-                        format!(
-                            "Unknown-{}",
-                            Utc::now().format("%Y-%m-%d-%H-%M-%S").to_string()
-                        ),
+                        format!("Unknown-{}", Utc::now().format("%Y-%m-%d-%H-%M-%S")),
                     ),
                 };
                 let store_dir = config_get().get_archive_dir().join(dir);
@@ -498,6 +516,7 @@ impl From<Metadata> for MetadataBuilder {
             .alias(metadata.alias)
             .tags(metadata.tags)
             .platform(metadata.platform)
+            .content_type(metadata.content_type)
             .description(metadata.description)
             .developer(metadata.developer)
             .publisher(metadata.publisher)

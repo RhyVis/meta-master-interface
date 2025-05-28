@@ -28,6 +28,33 @@ export const columns: QTableColumn[] = [
     field: (row: Metadata) => (row.tags.length > 0 ? row.tags.join(', ') : '未提供'),
   },
   {
+    name: 'content_type',
+    label: '内容类型',
+    classes: 'r-no-sel',
+    field: (row: Metadata) => {
+      switch (row.content_type) {
+        case 'Game':
+          return '游戏';
+        case 'Novel':
+          return '小说';
+        case 'Comic':
+          return '漫画';
+        case 'Music':
+          return '音乐';
+        case 'Anime':
+          return '动画';
+        case 'Movie':
+          return '电影';
+        case 'Software':
+          return '软件';
+        case 'Other':
+          return '其他';
+        default:
+          return '未明确';
+      }
+    },
+  },
+  {
     name: 'platform',
     label: '平台',
     classes: 'r-no-sel',
@@ -50,7 +77,7 @@ export const columns: QTableColumn[] = [
   {
     name: 'description',
     label: '描述',
-    field: (row: Metadata) => (row.description ? row.description.split('\n') : []),
+    field: (row: Metadata) => (row.description ? row.description.split('\n') : ['未提供']),
   },
   {
     name: 'developer',

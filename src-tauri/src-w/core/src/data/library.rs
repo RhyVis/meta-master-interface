@@ -48,7 +48,7 @@ fn internal_lib() -> &'static Database {
 
             if backups.len() > 5 {
                 for entry in &backups[..backups.len() - 5] {
-                    let _ = fs::remove_file(&entry.path());
+                    let _ = fs::remove_file(entry.path());
                 }
             }
         }

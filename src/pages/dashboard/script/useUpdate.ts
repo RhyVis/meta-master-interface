@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash-es';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 
-import { ArchiveType, PlatformType } from '@/api/types.ts';
+import { ArchiveType, ContentType, PlatformType } from '@/api/types.ts';
 import { removeEmptyStrings } from '@/api/util.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 import { get, set } from '@vueuse/core';
@@ -22,6 +22,7 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
     title: '',
     alias: [],
     tags: [],
+    content_type: ContentType.Other,
     platform: PlatformType.Unknown,
     archive_info: ArchiveType.Unset,
   });
@@ -31,6 +32,7 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
       title: '',
       alias: [],
       tags: [],
+      content_type: ContentType.Other,
       platform: PlatformType.Unknown,
       archive_info: ArchiveType.Unset,
     });
