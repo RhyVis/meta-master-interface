@@ -10,12 +10,12 @@ edition.workspace = true
 log.workspace = true
 serde.workspace = true
 toml = "0.8"
+bson = "2"
+redb = "2"
+serde_json = "1.0"
 uuid = { version = "1", features = ["v4"] }
 derive_builder = "0.20"
-chrono = { version = "0.4.41", features = ["serde"] }
-thiserror = "2.0.12"
-bson = "2.15.0"
-redb = "2.6.0"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
 const_format = "0.2"
-optional_struct = "0.5.2"
-serde_json = "1.0.140"
+fs_extra = "1"

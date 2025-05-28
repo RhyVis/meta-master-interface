@@ -66,6 +66,25 @@ export type ArchiveInfo =
       };
     };
 
+export const enum DeployType {
+  Unset = 'Unset',
+  File = 'File',
+  Directory = 'Directory',
+}
+
+export type DeployInfo =
+  | DeployType.Unset
+  | {
+      File: {
+        path: string;
+      };
+    }
+  | {
+      Directory: {
+        path: string;
+      };
+    };
+
 export type Metadata = {
   id: string;
   title: string;
@@ -77,6 +96,7 @@ export type Metadata = {
   publisher?: string;
   version?: string;
   archive_info: ArchiveInfo;
+  deploy_info: DeployInfo;
   time_created: string;
   time_updated: string;
 };

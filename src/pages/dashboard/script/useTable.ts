@@ -6,7 +6,7 @@ import { useLibraryStore } from '@/pages/dashboard/store.ts';
 export const useTable = () => {
   const { data } = storeToRefs(useLibraryStore());
 
-  const visibleColumns = ref(['title', 'alias', 'time_created', 'actions']);
+  const visibleColumns = ref(['title', 'alias', 'tags', 'time_created', 'time_updated']);
   const searchTag = ref('');
 
   const filteredRows = computed(() => {

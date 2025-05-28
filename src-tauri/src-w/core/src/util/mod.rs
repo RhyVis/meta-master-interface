@@ -1,5 +1,6 @@
 pub mod compress;
 pub mod config;
+pub mod path_ext;
 
 use std::path::PathBuf;
 use std::process::Command;

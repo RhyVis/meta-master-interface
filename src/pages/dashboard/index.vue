@@ -5,11 +5,16 @@ import { useToggle } from '@vueuse/core';
 import { useTable } from '@/pages/dashboard/script/useTable.ts';
 import { computed, ref } from 'vue';
 import DashboardUpdate from '@/pages/dashboard/comp/DashboardUpdate.vue';
+import { openSelectFolder } from '@/api/file-dialog.ts';
+import { useQuasar } from 'quasar';
+import { ArchiveType, DeployType, type Metadata } from '@/api/types.ts';
+import { useGlobalStore } from '@/stores/global.ts';
 
-const dev = computed(() => import.meta.env.DEV);
+const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
-const { reload, remove } = library;
+const { reload, remove, deploy, deployOff } = library;
 const { visibleColumns, searchTag, filteredRows } = useTable();
+const { notify } = useQuasar();
 
 const [updateState, toggleUpdateState] = useToggle(false);
 
@@ -33,10 +38,23 @@ const handleRemove = (id: string) => {
   handleExit();
   remove(id);
 };
+const handleDeploy = async (id: string) => {
+  const path = await openSelectFolder();
+  if (path) {
+    await deploy(id, path);
+  } else {
+    notify({
+      type: 'negative',
+      message: '请选择一个有效的目录进行部署',
+      color: 'negative',
+      position: 'top',
+    });
+  }
+};
 </script>
 
 <template>
-  <div class="q-pa-md">
+  <q-page padding>
     <div class="col q-gutter-md">
       <!-- 数据表 -->
       <q-table
@@ -103,6 +121,48 @@ const handleRemove = (id: string) => {
               <q-separator inset />
               <q-card-actions class="q-mt-auto" align="right">
                 <q-btn-group flat>
+                  <q-btn
+                    v-if="
+                      (props.row as Metadata).archive_info != ArchiveType.Unset &&
+                      (props.row as Metadata).deploy_info == DeployType.Unset
+                    "
+                    color="primary"
+                    flat
+                    icon="create_new_folder"
+                    size="sm"
+                    @click="handleDeploy((props.row as Metadata).id)"
+                  >
+                    <q-tooltip> 部署到指定目录 </q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    v-if="(props.row as Metadata).deploy_info != DeployType.Unset"
+                    color="primary"
+                    flat
+                    icon="folder_off"
+                    size="sm"
+                  >
+                    <q-tooltip> 取消部署 </q-tooltip>
+                    <q-popup-proxy>
+                      <q-card>
+                        <q-card-section>
+                          <div class="r-no-sel text-subtitle2">确定要取消部署吗</div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-actions align="right">
+                          <q-btn-group flat>
+                            <q-btn v-close-popup flat icon="close" size="sm" />
+                            <q-btn
+                              v-close-popup
+                              flat
+                              icon="check"
+                              size="sm"
+                              @click="deployOff((props.row as Metadata).id)"
+                            />
+                          </q-btn-group>
+                        </q-card-actions>
+                      </q-card>
+                    </q-popup-proxy>
+                  </q-btn>
                   <q-btn flat icon="edit" size="sm" @click="handleUpdate(props.rowIndex)" />
                   <q-btn
                     color="negative"
@@ -118,7 +178,7 @@ const handleRemove = (id: string) => {
         </template>
       </q-table>
     </div>
-  </div>
+  </q-page>
 
   <q-drawer v-model="updateState" :width="600" no-swipe-close side="right" @hide="handleExit">
     <DashboardUpdate v-model="editIdx" :key="editIdx" @exit="handleExit" />

@@ -28,6 +28,16 @@ pub fn metadata_remove(key: &str) -> CommandResult<bool> {
 }
 
 #[command]
+pub fn metadata_deploy(key: &str, target: &str) -> CommandResult<()> {
+    lib_deploy(key, target).string_err()
+}
+
+#[command]
+pub fn metadata_deploy_off(key: &str) -> CommandResult<()> {
+    lib_deploy_off(key).string_err()
+}
+
+#[command]
 pub fn library_export() -> CommandResult<()> {
     lib_export().string_err()
 }

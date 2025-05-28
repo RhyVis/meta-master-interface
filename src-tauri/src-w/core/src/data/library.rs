@@ -1,5 +1,6 @@
 use crate::data::metadata::{Metadata, MetadataError, MetadataOptional};
 use crate::util::config::config_get;
+use chrono::Local;
 use const_format::concatcp;
 use log::{error, info, warn};
 use redb::{Database, ReadableTable, TableDefinition};
@@ -13,6 +14,8 @@ const LIB_EXPORT_EXT: &str = "json";
 const LIB_FILE_NAME: &str = concatcp!(LIB_FILE_STEM, ".", LIB_FILE_EXT);
 const LIB_EXPORT_FILE_NAME: &str = concatcp!(LIB_FILE_STEM, ".", LIB_EXPORT_EXT);
 
+const BACKUP_DIR: &str = "backup";
+
 const LIB_TABLE: TableDefinition<&str, Vec<u8>> = TableDefinition::new("LIBRARY");
 
 fn internal_lib() -> &'static Database {
@@ -21,11 +24,36 @@ fn internal_lib() -> &'static Database {
     fn init_db() -> Database {
         let root_path = config_get().get_root();
         if !root_path.exists() {
-            std::fs::create_dir_all(&root_path)
-                .expect("Failed to create application data directory");
+            fs::create_dir_all(&root_path).expect("Failed to create application data directory");
         }
 
-        Database::create(root_path.join(LIB_FILE_NAME)).expect("Unable to open library")
+        let backup_dir = root_path.join(BACKUP_DIR);
+        if !backup_dir.exists() {
+            fs::create_dir_all(&backup_dir).expect("Failed to create backup directory");
+        }
+
+        let bin_path = root_path.join(LIB_FILE_NAME);
+        if bin_path.exists() {
+            let timestamp = Local::now().format("%Y%m%d%H%M%S");
+            let backup_file =
+                backup_dir.join(format!("{LIB_FILE_STEM}.{timestamp}.{LIB_FILE_EXT}"));
+            fs::copy(&bin_path, &backup_file).expect("Failed to copy backup binary");
+
+            let mut backups = fs::read_dir(&backup_dir)
+                .expect("Failed to read backup directory")
+                .filter_map(|e| e.ok())
+                .filter(|e| e.path().is_file())
+                .collect::<Vec<_>>();
+            backups.sort_by_key(|e| e.metadata().and_then(|m| m.modified()).ok());
+
+            if backups.len() > 5 {
+                for entry in &backups[..backups.len() - 5] {
+                    let _ = fs::remove_file(&entry.path());
+                }
+            }
+        }
+
+        Database::create(bin_path).expect("Unable to open library")
     }
 
     fn init_table(db: &Database) -> Result<(), Box<dyn error::Error>> {
@@ -141,6 +169,32 @@ pub fn lib_remove(key: &str) -> LibraryResult<bool> {
     Ok(removed)
 }
 
+pub fn lib_deploy(key: &str, target: &str) -> LibraryResult<()> {
+    let mut metadata = internal_get(key)?;
+    if metadata.deploy(target)? {
+        info!("Successfully deployed metadata with key: {}", key);
+        internal_set(key, metadata)?;
+        Ok(())
+    } else {
+        error!("Failed to deploy metadata with key: {}", key);
+        internal_set(key, metadata)?;
+        Err(LibraryError::DeployError)
+    }
+}
+
+pub fn lib_deploy_off(key: &str) -> LibraryResult<()> {
+    let mut metadata = internal_get(key)?;
+    if metadata.deploy_off()? {
+        info!("Successfully removed deployed metadata with key: {}", key);
+        internal_set(key, metadata)?;
+        Ok(())
+    } else {
+        error!("Failed to remove deployed metadata with key: {}", key);
+        internal_set(key, metadata)?;
+        Err(LibraryError::DeployError)
+    }
+}
+
 pub fn lib_export() -> LibraryResult<()> {
     let all_metadata = lib_get_all()?;
     let export_path = config_get().get_root().join(LIB_EXPORT_FILE_NAME);
@@ -181,6 +235,9 @@ type LibraryResult<T> = Result<T, LibraryError>;
 pub enum LibraryError {
     #[error("Metadata with key {0} not found")]
     NotFound(String),
+
+    #[error("Failed to deploy metadata due to missing or invalid info")]
+    DeployError,
 
     #[error("Metadata internal error: {0}")]
     MetadataError(#[from] MetadataError),

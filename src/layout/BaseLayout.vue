@@ -26,21 +26,9 @@ const appWindow = getCurrentWindow();
         </q-toolbar-title>
 
         <q-btn-group class="r-drag-region-disabled" flat>
-          <q-btn
-            dense
-            flat
-            icon="fa-solid fa-window-minimize"
-            round
-            @click="appWindow.minimize()"
-          />
-          <q-btn
-            dense
-            flat
-            icon="fa-solid fa-window-maximize"
-            round
-            @click="appWindow.toggleMaximize()"
-          />
-          <q-btn dense flat icon="fa-solid fa-xmark" round @click="appWindow.close()" />
+          <q-btn dense flat icon="minimize" round @click="appWindow.minimize()" />
+          <q-btn dense flat icon="crop_square" round @click="appWindow.toggleMaximize()" />
+          <q-btn dense flat icon="close" round @click="appWindow.close()" />
         </q-btn-group>
       </q-toolbar>
     </q-header>

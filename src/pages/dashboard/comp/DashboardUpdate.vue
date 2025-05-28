@@ -6,8 +6,9 @@ import { ArchiveType, ArchiveTypeOptions, PlatformOptions, PlatformType } from '
 import { set } from '@vueuse/core';
 import { openPathTo, openSelectFile, openSelectFolder } from '@/api/file-dialog.ts';
 import { generateRandomPassword } from '@/api/util.ts';
+import { useGlobalStore } from '@/stores/global.ts';
 
-const dev = computed(() => import.meta.env.DEV);
+const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const value = defineModel({
   type: Number,
   required: true,

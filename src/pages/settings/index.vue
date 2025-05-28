@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { command_library_export, command_library_import } from '@/api/command.ts';
 import { useQuasar } from 'quasar';
+import { storeToRefs } from 'pinia';
+import { useGlobalStore } from '@/stores/global.ts';
 
 const {
   notify,
   loading: { show, hide },
 } = useQuasar();
+const { develop } = storeToRefs(useGlobalStore());
 
 const handleExport = async () => {
   try {
@@ -55,19 +58,44 @@ const handleImport = async () => {
 </script>
 
 <template>
-  <div class="q-pa-xl flex flex-center">
-    <div class="q-pa-lg q-mx-auto">
-      <div class="text-h5 text-center q-mb-md r-no-sel">导入/导出数据库</div>
+  <q-page class="r-no-sel" padding>
+    <q-list bordered padding>
+      <q-item-label header>导入/导出数据库</q-item-label>
+
+      <q-item v-ripple clickable @click="handleExport">
+        <q-item-section side>
+          <q-icon name="output" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>导出数据库</q-item-label>
+          <q-item-label caption>导出数据库为 library.json 文件</q-item-label>
+        </q-item-section>
+      </q-item>
+
+      <q-item v-ripple clickable @click="handleImport">
+        <q-item-section side>
+          <q-icon name="exit_to_app" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>导入数据库</q-item-label>
+          <q-item-label caption>从 library.json 文件导入数据库</q-item-label>
+        </q-item-section>
+      </q-item>
+
       <q-separator spaced />
-      <div class="row justify-center q-gutter-md q-mb-md">
-        <q-btn-group push>
-          <q-btn icon="output" label="导出数据库" push @click="handleExport" />
-          <q-btn icon="exit_to_app" label="导入数据库" push @click="handleImport" />
-        </q-btn-group>
-      </div>
-      <div class="text-caption text-grey text-center r-no-sel">
-        导出当前数据库进行备份，或导入数据库进行恢复。
-      </div>
-    </div>
-  </div>
+      <q-item-label header>开发设置</q-item-label>
+      <q-item v-ripple>
+        <q-item-section side>
+          <q-icon name="developer_mode" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>开发模式</q-item-label>
+          <q-item-label caption>启用后将显示开发相关的功能和设置</q-item-label>
+        </q-item-section>
+        <q-item-section side top>
+          <q-toggle v-model="develop" />
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-page>
 </template>

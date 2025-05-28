@@ -18,6 +18,14 @@ export function command_metadata_remove(key: string): Promise<void> {
   return invoke('metadata_remove', { key });
 }
 
+export function command_metadata_deploy(key: string, target: string): Promise<void> {
+  return invoke('metadata_deploy', { key, target });
+}
+
+export function command_metadata_deploy_off(key: string): Promise<void> {
+  return invoke('metadata_deploy_off', { key });
+}
+
 export function command_library_export(): Promise<void> {
   return invoke('library_export');
 }

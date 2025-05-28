@@ -4,6 +4,8 @@ import { defineStore } from 'pinia';
 import { Loading, Notify } from 'quasar';
 
 import {
+  command_metadata_deploy,
+  command_metadata_deploy_off,
   command_metadata_get_all,
   command_metadata_remove,
   command_metadata_update,
@@ -97,6 +99,67 @@ export const useLibraryStore = defineStore('library', {
         console.error(e);
         Notify.create({
           message: `删除失败: ${key}`,
+          caption: e as string,
+          color: 'negative',
+          position: 'top',
+          icon: 'error',
+        });
+      } finally {
+        Loading.hide();
+      }
+    },
+    async deploy(key: string, target: string) {
+      if (!target) {
+        Notify.create({
+          message: '部署目标不能为空',
+          color: 'negative',
+          position: 'top',
+          icon: 'error',
+        });
+        return;
+      }
+
+      try {
+        Loading.show({
+          message: `正在部署 ${key} 到 ${target}...`,
+        });
+        await command_metadata_deploy(key, target);
+        this.data = await command_metadata_get_all();
+        Notify.create({
+          message: `部署成功`,
+          color: 'positive',
+          position: 'top',
+          icon: 'cloud_done',
+        });
+      } catch (e) {
+        Notify.create({
+          message: `部署失败: ${key} 到 ${target}`,
+          caption: e as string,
+          color: 'negative',
+          position: 'top',
+          icon: 'error',
+        });
+      } finally {
+        Loading.hide();
+      }
+    },
+    async deployOff(key: string) {
+      try {
+        Loading.show({
+          message: `正在取消部署 ${key}...`,
+        });
+        await command_metadata_deploy_off(key);
+        this.data = await command_metadata_get_all();
+        Notify.create({
+          message: `取消部署成功`,
+          color: 'positive',
+          position: 'top',
+          icon: 'cloud_done',
+        });
+      } catch (e) {
+        console.error(e);
+        Notify.create({
+          message: `取消部署失败: ${key}`,
           caption: e as string,
           color: 'negative',
           position: 'top',
