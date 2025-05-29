@@ -11,10 +11,12 @@ import { removeEmptyStrings } from '@/api/util.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 import { get, set } from '@vueuse/core';
 
-export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
+export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
   const { notify } = useQuasar();
   const library = useLibraryStore();
-  const current = computed<MetadataOptional | undefined>(() => library.data[index.value]);
+  const current = computed<MetadataOptional | undefined>(() =>
+    library.data.find((val) => val.id === id.value),
+  );
 
   // true if editing an existing item, false if creating a new one
   const mode = computed(() => !!current.value);
@@ -198,7 +200,7 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
   };
 
   watch(
-    () => index.value,
+    () => id.value,
     () => {
       if (current.value) {
         console.log('Cloning current metadata for editing:', current.value);

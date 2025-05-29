@@ -16,7 +16,7 @@ import { useGlobalStore } from '@/stores/global.ts';
 
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const value = defineModel({
-  type: Number,
+  type: String,
   required: true,
 });
 const formRef = ref<QForm>();
@@ -76,14 +76,18 @@ const handlePassword = () => {
 
 <template>
   <q-card class="full-height full-width" flat>
-    <q-card-section class="text-h6 r-no-sel">
+    <q-card-section class="r-no-sel row">
       <div v-if="mode">
-        <q-icon class="q-mr-sm" name="edit" />
-        <span>编辑 {{ edit.title }}</span>
+        <q-icon class="q-mr-sm q-mb-xs" name="edit" size="xs" />
+        <span class="text-h6">编辑 {{ edit.title }}</span>
       </div>
       <div v-else>
-        <q-icon class="q-mr-sm" name="add" />
-        <span>创建新条目</span>
+        <q-icon class="q-mr-sm q-mb-xs" name="add" size="xs" />
+        <span class="text-h6">创建新条目</span>
+      </div>
+      <q-space />
+      <div>
+        <q-btn icon="close" round size="sm" @click="$emit('exit')" />
       </div>
     </q-card-section>
     <q-separator />

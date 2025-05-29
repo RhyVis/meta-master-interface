@@ -19,14 +19,14 @@ const { notify } = useQuasar();
 
 const [updateState, toggleUpdateState] = useToggle(false);
 
-const editIdx = ref(-1);
-const handleUpdate = (index?: number) => {
-  if (index != undefined && index >= 0) {
+const editId = ref('none');
+const handleUpdate = (index?: string) => {
+  if (index) {
     console.log(`Using edit mode: ${index}`);
-    set(editIdx, index);
+    set(editId, index);
   } else {
     console.log('Using new entry mode');
-    set(editIdx, -1);
+    set(editId, 'new');
   }
   toggleUpdateState(true);
 };
@@ -34,8 +34,8 @@ const handleExit = () => {
   console.log('Exiting update mode');
   toggleUpdateState(false);
   // Avoid keeping data when creating a new entry continuously
-  set(editIdx, -2);
-  set(editIdx, -1);
+  set(editId, 'exit');
+  set(editId, 'none');
 };
 const handleRemove = (id: string) => {
   handleExit();
@@ -77,7 +77,7 @@ const handleDeploy = async (id: string) => {
         </template>
         <template #top-right>
           <div class="row q-gutter-sm items-center">
-            <q-chip v-if="dev">Edit Index: {{ editIdx }}</q-chip>
+            <q-chip v-if="dev">Edit Index: {{ editId }}</q-chip>
             <q-chip v-if="dev">Sort By: {{ pagination }}</q-chip>
             <q-input v-model="searchTag" dense outlined placeholder="搜索">
               <template #append>
@@ -204,7 +204,12 @@ const handleDeploy = async (id: string) => {
                       </q-card>
                     </q-popup-proxy>
                   </q-btn>
-                  <q-btn flat icon="edit" size="sm" @click="handleUpdate(props.rowIndex)" />
+                  <q-btn
+                    flat
+                    icon="edit"
+                    size="sm"
+                    @click="handleUpdate((props.row as Metadata).id)"
+                  />
                   <q-btn color="negative" flat icon="delete" size="sm">
                     <q-tooltip> 删除条目 </q-tooltip>
                     <q-popup-proxy>
@@ -248,6 +253,6 @@ const handleDeploy = async (id: string) => {
     side="right"
     @hide="handleExit"
   >
-    <DashboardUpdate v-model="editIdx" :key="editIdx" @exit="handleExit" />
+    <DashboardUpdate v-model="editId" :key="editId" @exit="handleExit" />
   </q-drawer>
 </template>
