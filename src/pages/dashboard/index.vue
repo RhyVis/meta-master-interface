@@ -108,7 +108,7 @@ const handleDeploy = async (id: string) => {
             </q-select>
             <q-select
               v-model="visibleColumns"
-              :options="columns.filter((col) => col.name != 'actions' && col.name != 'title')"
+              :options="columns.filter((col) => col.name != 'title')"
               dense
               display-value="显示内容"
               emit-value
