@@ -33,6 +33,7 @@ pub fn run() {
             metadata_remove,
             metadata_deploy,
             metadata_deploy_off,
+            library_clear,
             library_export,
             library_import,
             util_resolve_absolute

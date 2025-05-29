@@ -1,7 +1,11 @@
+import type { QSelectOption } from 'quasar';
+
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 
+import { columns } from '@/pages/dashboard/define.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
+import { get } from '@vueuse/core';
 
 export const useTable = () => {
   const { data } = storeToRefs(useLibraryStore());
@@ -22,5 +26,14 @@ export const useTable = () => {
     }
   });
 
-  return { visibleColumns, searchTag, filteredRows };
+  const paginationOptions = ref<QSelectOption[]>(
+    columns.map((col) => ({ value: col.name, label: col.label })),
+  );
+  const paginationSort = ref('title');
+  const pagination = computed(() => ({
+    sortBy: get(paginationSort),
+    rowsPerPage: 6,
+  }));
+
+  return { visibleColumns, searchTag, filteredRows, pagination, paginationSort, paginationOptions };
 };

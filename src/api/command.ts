@@ -26,6 +26,10 @@ export function command_metadata_deploy_off(key: string): Promise<void> {
   return invoke('metadata_deploy_off', { key });
 }
 
+export function command_library_clear(): Promise<void> {
+  return invoke('library_clear');
+}
+
 export function command_library_export(): Promise<void> {
   return invoke('library_export');
 }

@@ -13,7 +13,8 @@ import { useGlobalStore } from '@/stores/global.ts';
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
 const { reload, remove, deploy, deployOff } = library;
-const { visibleColumns, searchTag, filteredRows } = useTable();
+const { visibleColumns, searchTag, filteredRows, pagination, paginationSort, paginationOptions } =
+  useTable();
 const { notify } = useQuasar();
 
 const [updateState, toggleUpdateState] = useToggle(false);
@@ -60,8 +61,10 @@ const handleDeploy = async (id: string) => {
     <div class="col q-gutter-md">
       <!-- 数据表 -->
       <q-table
+        v-model:pagination="pagination"
         :columns="columns"
         :rows="filteredRows"
+        :rows-per-page-options="[6, 12, 18, 24, 30, 0]"
         :visible-columns="visibleColumns"
         grid
         row-key="id"
@@ -73,25 +76,38 @@ const handleDeploy = async (id: string) => {
           </q-btn-group>
         </template>
         <template #top-right>
-          <q-chip class="q-mr-sm" v-if="dev">Edit Index: {{ editIdx }}</q-chip>
-          <q-input class="q-mr-xs" v-model="searchTag" dense outlined placeholder="搜索">
-            <template #append>
-              <q-icon name="delete" v-if="searchTag" @click="searchTag = ''" />
-              <q-icon name="search" v-else />
-            </template>
-          </q-input>
-          <q-select
-            v-model="visibleColumns"
-            :options="columns.filter((col) => col.name != 'actions' && col.name != 'title')"
-            dense
-            display-value="显示内容"
-            emit-value
-            map-options
-            multiple
-            option-value="name"
-            options-dense
-            outlined
-          />
+          <div class="row q-gutter-sm items-center">
+            <q-chip v-if="dev">Edit Index: {{ editIdx }}</q-chip>
+            <q-chip v-if="dev">Sort By: {{ pagination }}</q-chip>
+            <q-input v-model="searchTag" dense outlined placeholder="搜索">
+              <template #append>
+                <q-icon name="delete" v-if="searchTag" @click="searchTag = ''" />
+                <q-icon name="search" v-else />
+              </template>
+            </q-input>
+            <q-select
+              v-model="paginationSort"
+              :options="paginationOptions"
+              dense
+              display-value="排序"
+              emit-value
+              map-options
+              options-dense
+              outlined
+            />
+            <q-select
+              v-model="visibleColumns"
+              :options="columns.filter((col) => col.name != 'actions' && col.name != 'title')"
+              dense
+              display-value="显示内容"
+              emit-value
+              map-options
+              multiple
+              option-value="name"
+              options-dense
+              outlined
+            />
+          </div>
         </template>
 
         <template #item="props">

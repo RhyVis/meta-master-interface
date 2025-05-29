@@ -38,6 +38,11 @@ pub fn metadata_deploy_off(key: &str) -> CommandResult<()> {
 }
 
 #[command]
+pub fn library_clear() -> CommandResult<()> {
+    lib_clear().string_err()
+}
+
+#[command]
 pub fn library_export() -> CommandResult<()> {
     lib_export().string_err()
 }

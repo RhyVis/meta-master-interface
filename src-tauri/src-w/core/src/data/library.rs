@@ -169,6 +169,24 @@ pub fn lib_remove(key: &str) -> LibraryResult<bool> {
     Ok(removed)
 }
 
+pub fn lib_clear() -> LibraryResult<()> {
+    let write = internal_lib().begin_write()?;
+    {
+        write.delete_table(LIB_TABLE)?;
+    }
+    write.commit()?;
+
+    let write = internal_lib().begin_write()?;
+    {
+        let table = write.open_table(LIB_TABLE)?;
+        table.get("SOME_KEY")?;
+    }
+    write.commit()?;
+
+    info!("Library cleared");
+    Ok(())
+}
+
 pub fn lib_deploy(key: &str, target: &str) -> LibraryResult<()> {
     let mut metadata = internal_get(key)?;
     if metadata.deploy(target)? {

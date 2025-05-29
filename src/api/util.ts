@@ -32,3 +32,8 @@ export function formatBytes(bytes: number): string {
   const size = bytes / Math.pow(k, i);
   return `${size.toFixed(2)}${units[i]}`;
 }
+
+export function truncateString(str: string, maxLength = 40): string {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength - 3) + '...';
+}

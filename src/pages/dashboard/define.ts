@@ -20,13 +20,13 @@ export const columns: QTableColumn[] = [
     name: 'alias',
     label: '别名',
     classes: 'r-no-sel',
-    field: (row: Metadata) => (row.alias.length > 0 ? row.alias.join(', ') : '未提供'),
+    field: (row: Metadata) => (row.alias.length > 0 ? row.alias.join(', ') : '<未提供>'),
   },
   {
     name: 'tags',
     label: '标签',
     classes: 'r-no-sel',
-    field: (row: Metadata) => (row.tags.length > 0 ? row.tags.join(', ') : '未提供'),
+    field: (row: Metadata) => (row.tags.length > 0 ? row.tags.join(', ') : '<未提供>'),
   },
   {
     name: 'content_type',
@@ -51,7 +51,7 @@ export const columns: QTableColumn[] = [
         case 'Other':
           return '其他';
         default:
-          return '未明确';
+          return '<未明确>';
       }
     },
   },
@@ -78,22 +78,22 @@ export const columns: QTableColumn[] = [
   {
     name: 'description',
     label: '描述',
-    field: (row: Metadata) => (row.description ? row.description.split('\n') : ['未提供']),
+    field: (row: Metadata) => (row.description ? row.description.split('\n') : ['<未提供>']),
   },
   {
     name: 'developer',
     label: '开发者',
-    field: (row: Metadata) => row.developer ?? '未提供',
+    field: (row: Metadata) => row.developer ?? '<未提供>',
   },
   {
     name: 'publisher',
     label: '发行商',
-    field: (row: Metadata) => row.publisher ?? '未提供',
+    field: (row: Metadata) => row.publisher ?? '<未提供>',
   },
   {
     name: 'version',
     label: '版本',
-    field: (row: Metadata) => row.version ?? '未提供',
+    field: (row: Metadata) => row.version ?? '<未提供>',
   },
   {
     name: 'archive_size',

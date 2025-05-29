@@ -4,6 +4,9 @@ import { defineStore } from 'pinia';
 import { Loading, Notify } from 'quasar';
 
 import {
+  command_library_clear,
+  command_library_export,
+  command_library_import,
   command_metadata_deploy,
   command_metadata_deploy_off,
   command_metadata_get_all,
@@ -160,6 +163,86 @@ export const useLibraryStore = defineStore('library', {
         console.error(e);
         Notify.create({
           message: `取消部署失败: ${key}`,
+          caption: e as string,
+          color: 'negative',
+          position: 'top',
+          icon: 'error',
+        });
+      } finally {
+        Loading.hide();
+      }
+    },
+    async clear() {
+      try {
+        Loading.show({
+          message: '正在自动导出库...',
+        });
+        await command_library_export();
+        Loading.hide();
+        Loading.show({
+          message: '正在清空库...',
+        });
+        await command_library_clear();
+        this.data = [];
+        Notify.create({
+          message: '清空库成功',
+          color: 'positive',
+          position: 'top',
+          icon: 'cloud_done',
+        });
+      } catch (e) {
+        console.error(e);
+        Notify.create({
+          message: '清空库失败',
+          caption: e as string,
+          color: 'negative',
+          position: 'top',
+          icon: 'error',
+        });
+      } finally {
+        Loading.hide();
+      }
+    },
+    async export() {
+      try {
+        Loading.show();
+        await command_library_export();
+        Notify.create({
+          message: '导出库成功',
+          color: 'positive',
+          position: 'top',
+          icon: 'cloud_done',
+        });
+      } catch (e) {
+        console.error(e);
+        Notify.create({
+          message: '导出库失败',
+          caption: e as string,
+          color: 'negative',
+          position: 'top',
+          icon: 'error',
+        });
+      } finally {
+        Loading.hide();
+      }
+    },
+    async import() {
+      try {
+        Loading.show({
+          message: '正在导入库...',
+        });
+        await command_library_import();
+        this.data = await command_metadata_get_all();
+        Notify.create({
+          message: '导入库成功',
+          color: 'positive',
+          position: 'top',
+          icon: 'cloud_done',
+        });
+      } catch (e) {
+        console.error(e);
+        Notify.create({
+          message: '导入库失败',
           caption: e as string,
           color: 'negative',
           position: 'top',
