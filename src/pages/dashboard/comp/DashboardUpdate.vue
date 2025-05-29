@@ -100,16 +100,6 @@ const handlePassword = () => {
           lazy-rules
         />
 
-        <!-- Description -->
-        <q-input
-          v-model="edit.description"
-          autogrow
-          dense
-          hint="描述性内容"
-          label="描述"
-          type="textarea"
-        />
-
         <!-- Alias -->
         <q-input
           v-model="cAlias"
@@ -132,13 +122,23 @@ const handlePassword = () => {
           </q-chip>
         </div>
 
+        <!-- Description -->
+        <q-input
+          v-model="edit.description"
+          autogrow
+          dense
+          hint="描述性内容"
+          label="描述"
+          type="textarea"
+        />
+
         <!-- Tag -->
         <q-input
           v-model="cTag"
           dense
           hint="额外限定，可用于搜索"
           label="标签"
-          placeholder="回车以添加别名"
+          placeholder="回车以添加别名，可用空格，逗号，分号等分隔"
           @keyup.enter="addTag"
         />
         <div class="q-mt-sm q-gutter-xs">
@@ -178,28 +178,30 @@ const handlePassword = () => {
           options-dense
         />
         <div class="q-mt-sm" v-if="cPlatformType != PlatformType.Unknown">
-          <q-input
-            v-if="cPlatformType == PlatformType.Steam"
-            v-model="cPlatformID"
-            :rules="[(val) => !!val || '必须提供']"
-            dense
-            hint="平台 ID"
-            label="ID"
-            lazy-rules
-          />
-          <q-input
-            v-else-if="cPlatformType == PlatformType.DLSite"
-            v-model="cPlatformID"
-            :rules="[(val) => !!val || '必须提供']"
-            dense
-            hint="平台 ID"
-            label="ID"
-            lazy-rules
-          />
+          <div v-if="cPlatformType == PlatformType.Steam">
+            <q-input
+              v-model="cPlatformID"
+              :rules="[(val) => !!val || '必须提供 ID']"
+              dense
+              hint="平台 ID"
+              label="ID"
+              lazy-rules
+            />
+          </div>
+          <div v-else-if="cPlatformType == PlatformType.DLSite">
+            <q-input
+              v-model="cPlatformID"
+              :rules="[(val) => !!val || '必须提供 ID']"
+              dense
+              hint="平台 ID"
+              label="ID"
+              lazy-rules
+            />
+          </div>
           <div v-else-if="cPlatformType == PlatformType.Other">
             <q-input
               v-model="cPlatformName"
-              :rules="[(val) => !!val || '必须提供']"
+              :rules="[(val) => !!val || '必须提供 ID']"
               dense
               hint="平台名称"
               label="平台名称"
@@ -210,13 +212,18 @@ const handlePassword = () => {
         </div>
 
         <!-- Developer -->
-        <q-input v-model="edit.developer" dense hint="开发者 [Developer]" label="开发者" />
+        <q-input v-model="edit.developer" dense hint="开发者，社团，公司" label="开发者" />
 
         <!-- Publisher -->
-        <q-input v-model="edit.publisher" dense hint="发行商 [Publisher]" label="发行商" />
+        <q-input
+          v-model="edit.publisher"
+          dense
+          hint="发行商，通常在Steam等平台会区分"
+          label="发行商"
+        />
 
         <!-- Version -->
-        <q-input v-model="edit.version" dense hint="版本 [Version]" label="版本" />
+        <q-input v-model="edit.version" dense hint="版本号，未填写时默认1.0" label="版本" />
 
         <!-- Archive Info -->
         <q-select

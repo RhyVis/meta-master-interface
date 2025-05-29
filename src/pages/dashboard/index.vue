@@ -13,7 +13,8 @@ import { useGlobalStore } from '@/stores/global.ts';
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
 const { reload, remove, deploy, deployOff } = library;
-const { visibleColumns, searchTag, filteredRows, pagination, paginationOptions } = useTable();
+const { visibleColumns, searchTag, searchByRegex, filteredRows, pagination, paginationOptions } =
+  useTable();
 const { notify } = useQuasar();
 
 const [updateState, toggleUpdateState] = useToggle(false);
@@ -82,6 +83,15 @@ const handleDeploy = async (id: string) => {
               <template #append>
                 <q-icon name="delete" v-if="searchTag" @click="searchTag = ''" />
                 <q-icon name="search" v-else />
+                <q-checkbox
+                  v-model="searchByRegex"
+                  checked-icon="fa-solid fa-code"
+                  unchecked-icon="fa-solid fa-font"
+                >
+                  <q-tooltip class="r-no-sel">{{
+                    searchByRegex ? '正则表达式搜索' : '普通搜索'
+                  }}</q-tooltip>
+                </q-checkbox>
               </template>
             </q-input>
             <q-select
@@ -100,6 +110,8 @@ const handleDeploy = async (id: string) => {
                   <q-checkbox
                     v-model="pagination!.descending"
                     checked-icon="fa-solid fa-sort-down"
+                    color="primary"
+                    keep-color
                     size="sm"
                     unchecked-icon="fa-solid fa-sort-up"
                   />

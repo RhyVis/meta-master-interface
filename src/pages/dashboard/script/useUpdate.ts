@@ -45,10 +45,11 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
 
   const cAlias = ref('');
   const addAlias = () => {
-    const trimInput = cAlias.value.trim();
     if (!edit.value.alias) {
       edit.value.alias = [];
     }
+
+    const trimInput = cAlias.value.trim();
     if (!trimInput) {
       notify({
         message: '添加别名不能为空',
@@ -78,10 +79,11 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
 
   const cTag = ref('');
   const addTag = () => {
-    const trimInput = cTag.value.trim();
     if (!edit.value.tags) {
       edit.value.tags = [];
     }
+
+    const trimInput = cTag.value.trim();
     if (!trimInput) {
       notify({
         message: '添加标签不能为空',
@@ -90,19 +92,32 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
         icon: 'warning',
       });
       return;
-    } else if (edit.value.tags.includes(trimInput)) {
-      if (edit.value.tags.includes(trimInput)) {
-        notify({
-          message: `标签 '${trimInput}' 已存在`,
-          color: 'warning',
-          position: 'top',
-          icon: 'warning',
-        });
-        return;
+    }
+
+    // Split by whitespace, commas, slashes and seps filter out empty strings
+    const tags = trimInput.split(/[\s，,；;\\/|]+/).filter(Boolean);
+    const duplicatedTags = [];
+
+    let added = false;
+    for (const tag of tags) {
+      if (!edit.value.tags.includes(tag)) {
+        edit.value.tags.push(tag);
+        added = true;
+      } else {
+        duplicatedTags.push(tag);
       }
-    } else {
-      edit.value.tags.push(trimInput);
+    }
+
+    if (added) {
       cTag.value = '';
+    }
+    if (duplicatedTags.length > 0) {
+      notify({
+        message: `标签 '${duplicatedTags.join(', ')}' 已存在`,
+        color: 'warning',
+        position: 'top',
+        icon: 'warning',
+      });
     }
   };
   const delTag = (idx: number) => {
