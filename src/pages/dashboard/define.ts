@@ -51,7 +51,7 @@ export const columns: QTableColumn[] = [
         case 'Other':
           return '其他';
         default:
-          return '<未明确>';
+          return '<未提供>';
       }
     },
   },
@@ -72,7 +72,7 @@ export const columns: QTableColumn[] = [
       if (PlatformType.Other in row.platform) {
         return `其他 (${row.platform.Other.name}${row.platform.Other.id ? `, ID: ${row.platform.Other.id}` : ''})`;
       }
-      return '未明确';
+      return '<未提供>';
     },
   },
   {

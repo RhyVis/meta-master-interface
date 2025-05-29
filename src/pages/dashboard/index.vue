@@ -13,8 +13,7 @@ import { useGlobalStore } from '@/stores/global.ts';
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
 const { reload, remove, deploy, deployOff } = library;
-const { visibleColumns, searchTag, filteredRows, pagination, paginationSort, paginationOptions } =
-  useTable();
+const { visibleColumns, searchTag, filteredRows, pagination, paginationOptions } = useTable();
 const { notify } = useQuasar();
 
 const [updateState, toggleUpdateState] = useToggle(false);
@@ -86,7 +85,7 @@ const handleDeploy = async (id: string) => {
               </template>
             </q-input>
             <q-select
-              v-model="paginationSort"
+              v-model="pagination!.sortBy"
               :options="paginationOptions"
               dense
               display-value="排序"
@@ -94,7 +93,19 @@ const handleDeploy = async (id: string) => {
               map-options
               options-dense
               outlined
-            />
+            >
+              <template #after-options>
+                <div class="row items-center r-no-sel q-px-md">
+                  <div class="q-mr-xs">{{ pagination?.descending ? '降序' : '升序' }}</div>
+                  <q-checkbox
+                    v-model="pagination!.descending"
+                    checked-icon="fa-solid fa-sort-down"
+                    size="sm"
+                    unchecked-icon="fa-solid fa-sort-up"
+                  />
+                </div>
+              </template>
+            </q-select>
             <q-select
               v-model="visibleColumns"
               :options="columns.filter((col) => col.name != 'actions' && col.name != 'title')"
@@ -182,13 +193,31 @@ const handleDeploy = async (id: string) => {
                     </q-popup-proxy>
                   </q-btn>
                   <q-btn flat icon="edit" size="sm" @click="handleUpdate(props.rowIndex)" />
-                  <q-btn
-                    color="negative"
-                    flat
-                    icon="delete"
-                    size="sm"
-                    @click="handleRemove(props.row.id)"
-                  />
+                  <q-btn color="negative" flat icon="delete" size="sm">
+                    <q-tooltip> 删除条目 </q-tooltip>
+                    <q-popup-proxy>
+                      <q-card>
+                        <q-card-section>
+                          <div class="r-no-sel text-subtitle2">
+                            确定要删除'{{ (props.row as Metadata).title }}'吗
+                          </div>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-actions align="right">
+                          <q-btn-group flat>
+                            <q-btn v-close-popup flat icon="close" size="sm" />
+                            <q-btn
+                              v-close-popup
+                              flat
+                              icon="check"
+                              size="sm"
+                              @click="handleRemove((props.row as Metadata).id)"
+                            />
+                          </q-btn-group>
+                        </q-card-actions>
+                      </q-card>
+                    </q-popup-proxy>
+                  </q-btn>
                 </q-btn-group>
               </q-card-actions>
             </q-card>
