@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 import { columns } from '@/pages/dashboard/define.ts';
-import { useToggle } from '@vueuse/core';
+import { set, useToggle } from '@vueuse/core';
 import { useTable } from '@/pages/dashboard/script/useTable.ts';
 import { computed, ref } from 'vue';
 import DashboardUpdate from '@/pages/dashboard/comp/DashboardUpdate.vue';
@@ -22,17 +22,19 @@ const editIdx = ref(-1);
 const handleUpdate = (index?: number) => {
   if (index != undefined && index >= 0) {
     console.log(`Using edit mode: ${index}`);
-    editIdx.value = index;
+    set(editIdx, index);
   } else {
-    console.log('Úsing new entry mode');
-    editIdx.value = -1;
+    console.log('Using new entry mode');
+    set(editIdx, -1);
   }
   toggleUpdateState(true);
 };
 const handleExit = () => {
   console.log('Exiting update mode');
   toggleUpdateState(false);
-  editIdx.value = -1;
+  // Avoid keeping data when creating a new entry continuously
+  set(editIdx, -2);
+  set(editIdx, -1);
 };
 const handleRemove = (id: string) => {
   handleExit();
@@ -180,7 +182,15 @@ const handleDeploy = async (id: string) => {
     </div>
   </q-page>
 
-  <q-drawer v-model="updateState" :width="600" no-swipe-close side="right" @hide="handleExit">
+  <q-drawer
+    v-model="updateState"
+    :width="600"
+    bordered
+    no-swipe-close
+    overlay
+    side="right"
+    @hide="handleExit"
+  >
     <DashboardUpdate v-model="editIdx" :key="editIdx" @exit="handleExit" />
   </q-drawer>
 </template>

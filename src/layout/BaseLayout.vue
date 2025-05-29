@@ -10,7 +10,7 @@ const appWindow = getCurrentWindow();
 
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header class="bg-white text-subtitle2 text-black r-drag-region" id="base-header">
+    <q-header class="bg-white text-subtitle2 text-black r-drag-region" id="base-header" bordered>
       <q-toolbar class="flex-center">
         <q-btn
           class="r-drag-region-disabled"

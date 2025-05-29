@@ -163,7 +163,7 @@ export const useUpdate = (index: Ref<number>, formRef: Ref<QForm>) => {
 
       const editCopy = removeEmptyStrings(cloneDeep(get(edit)));
 
-      if (!mode.value) {
+      if (!mode.value && cArchiveType.value != ArchiveType.Unset) {
         // If we are creating a new item, we need to set the creation flag
         editCopy['flag_create_archive'] = true;
       }
