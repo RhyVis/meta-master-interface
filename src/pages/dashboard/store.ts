@@ -14,6 +14,7 @@ import {
   command_metadata_remove,
   command_metadata_update,
 } from '@/api/command.ts';
+import { formatBytes } from '@/api/util.ts';
 
 interface LibraryState {
   data: Metadata[];
@@ -23,6 +24,10 @@ export const useLibraryStore = defineStore('library', {
   state: (): LibraryState => ({
     data: [],
   }),
+  getters: {
+    totalSize: (state): string =>
+      formatBytes(state.data.reduce((acc, item) => acc + (item.archive_size || 0), 0)),
+  },
   actions: {
     async reload() {
       try {

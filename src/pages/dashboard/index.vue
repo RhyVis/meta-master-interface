@@ -13,7 +13,7 @@ import { storeToRefs } from 'pinia';
 
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
-const { reload, remove, deploy, deployOff } = library;
+const { reload, remove, deploy, deployOff, totalSize } = library;
 const tableSettings = useTableStore();
 const { visibleColumns, pagination } = storeToRefs(tableSettings);
 const { searchTag, searchByRegex, filteredRows } = useTable();
@@ -87,12 +87,12 @@ onMounted(() => {
           <q-btn-group>
             <q-btn icon="refresh" label="刷新" @click="reload" />
             <q-btn icon="add" label="添加" @click="handleUpdate()" />
+            <q-btn class="r-no-sel" :label="totalSize" />
           </q-btn-group>
         </template>
         <template #top-right>
           <div class="row q-gutter-sm items-center">
             <q-chip v-if="dev">Edit Index: {{ editId }}</q-chip>
-            <q-chip v-if="dev">Sort By: {{ pagination }}</q-chip>
             <q-input v-model="searchTag" dense outlined placeholder="搜索">
               <template #append>
                 <q-icon name="delete" v-if="searchTag" @click="searchTag = ''" />

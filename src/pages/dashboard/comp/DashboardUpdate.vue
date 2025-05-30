@@ -11,7 +11,7 @@ import {
 } from '@/api/types.ts';
 import { set } from '@vueuse/core';
 import { openPathTo, openSelectFile, openSelectFolder } from '@/api/file-dialog.ts';
-import { generateRandomPassword } from '@/api/util.ts';
+import { generateRandomPassword, truncateString } from '@/api/util.ts';
 import { useGlobalStore } from '@/stores/global.ts';
 
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
@@ -38,6 +38,7 @@ const {
   cPlatformID,
   cPlatformName,
   // Helper ARCHIVE methods
+  fCreateArchive,
   cArchiveType,
   cArchivePath,
   cArchivePassword,
@@ -181,7 +182,7 @@ const handlePassword = () => {
           map-options
           options-dense
         />
-        <div class="q-mt-sm" v-if="cPlatformType != PlatformType.Unknown">
+        <div v-if="cPlatformType != PlatformType.Unknown">
           <div v-if="cPlatformType == PlatformType.Steam">
             <q-input
               v-model="cPlatformID"
@@ -252,7 +253,7 @@ const handlePassword = () => {
             >
               <template #control>
                 <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
-                  {{ cArchivePath ?? '未选择文件' }}
+                  {{ truncateString(cArchivePath, 25) ?? '未选择文件' }}
                 </div>
               </template>
               <template #after>
@@ -270,7 +271,7 @@ const handlePassword = () => {
             >
               <template #control>
                 <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
-                  {{ cArchivePath ?? '未选择文件夹' }}
+                  {{ truncateString(cArchivePath, 25) ?? '未选择文件夹' }}
                 </div>
               </template>
               <template #after>
@@ -280,8 +281,8 @@ const handlePassword = () => {
           </div>
           <div v-else-if="cArchiveType == ArchiveType.ArchiveFile">
             <q-field
-              :hint="mode ? '更新为新的压缩包路径' : '选择被压缩的文件夹'"
-              :label="mode ? '存档文件路径' : '源路径'"
+              :hint="fCreateArchive ? '选择被压缩的文件夹' : '更新为新的压缩包路径'"
+              :label="fCreateArchive ? '源路径' : '存档文件路径'"
               :rules="[() => !!cArchivePath || '必须提供路径']"
               dense
               lazy-rules
@@ -289,22 +290,33 @@ const handlePassword = () => {
             >
               <template #control>
                 <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
-                  {{ cArchivePath ?? '路径缺失' }}
+                  {{ truncateString(cArchivePath, 25) ?? '路径缺失' }}
                 </div>
               </template>
               <template #after>
+                <q-checkbox v-model="fCreateArchive" checked-icon="all_inbox" dense size="sm">
+                  <q-tooltip>
+                    {{ fCreateArchive ? '创建压缩归档' : '更新压缩归档' }}
+                  </q-tooltip>
+                </q-checkbox>
                 <q-btn
-                  :icon="mode ? 'folder_zip' : 'folder'"
+                  :icon="fCreateArchive ? 'folder' : 'folder_zip'"
                   dense
                   flat
-                  @click="handleSelectPath(mode)"
-                />
+                  @click="handleSelectPath(!fCreateArchive)"
+                >
+                  <q-tooltip>
+                    {{ fCreateArchive ? '选择源文件夹' : '选择存档文件' }}
+                  </q-tooltip>
+                </q-btn>
               </template>
             </q-field>
             <q-input v-model="cArchivePassword" dense hint="存档密码" label="密码">
               <template #after>
                 <q-btn dense flat icon="password" @click="handlePassword">
-                  <q-tooltip> 随机生成密码 </q-tooltip>
+                  <q-tooltip>
+                    {{ cArchivePassword ? '随机生成密码' : '使用默认密码' }}
+                  </q-tooltip>
                 </q-btn>
               </template>
             </q-input>

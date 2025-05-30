@@ -6,10 +6,14 @@ export function removeEmptyStrings(obj: any): any {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      if (value === '') continue;
-      result[key] = removeEmptyStrings(value);
+      const cleaned = removeEmptyStrings(value);
+      if (cleaned === '' || cleaned === undefined) continue;
+      result[key] = cleaned;
     }
     return result;
+  } else if (typeof obj === 'string') {
+    const trimmed = obj.trim();
+    return trimmed === '' ? undefined : trimmed;
   }
   return obj;
 }

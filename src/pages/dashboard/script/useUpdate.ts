@@ -43,6 +43,10 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
     set(cPlatformType, PlatformType.Unknown);
     set(cPlatformID, '');
     set(cPlatformName, '');
+    set(fCreateArchive, false);
+    set(cArchiveType, ArchiveType.Unset);
+    set(cArchivePath, '');
+    set(cArchivePassword, '');
   };
 
   const cAlias = ref('');
@@ -146,6 +150,7 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
     }
   };
 
+  const fCreateArchive = ref(false);
   const cArchiveType = ref<ArchiveType>(ArchiveType.Unset);
   const cArchivePath = ref('');
   const cArchivePassword = ref('');
@@ -180,7 +185,7 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
 
       const editCopy = removeEmptyStrings(cloneDeep(get(edit)));
 
-      if (!mode.value && cArchiveType.value != ArchiveType.Unset) {
+      if (get(fCreateArchive) && get(cArchiveType) != ArchiveType.Unset) {
         // If we are creating a new item, we need to set the creation flag
         editCopy['flag_create_archive'] = true;
       }
@@ -253,6 +258,11 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
           set(cArchivePassword, '');
         }
 
+        if (!get(mode)) {
+          console.log('Creating new item, setting archive creation flag to true');
+          set(fCreateArchive, true);
+        }
+
         Object.assign(edit.value, clone);
       } else {
         reset();
@@ -279,6 +289,7 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
     cPlatformID,
     cPlatformName,
     // Helper ARCHIVE methods
+    fCreateArchive,
     cArchiveType,
     cArchivePath,
     cArchivePassword,
