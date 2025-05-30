@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-w/core"]
+members = [ "src-w/api","src-w/core"]
 
 [workspace.package]
 description = "Metadata Master Interface"
