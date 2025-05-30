@@ -23,6 +23,9 @@ importers:
       '@tauri-apps/plugin-window-state':
         specifier: ~2.2.2
         version: 2.2.2
+      '@tauri-store/pinia':
+        specifier: ^3.6.0
+        version: 3.6.0(typescript@5.8.3)
       '@vueuse/core':
         specifier: ^13.2.0
         version: 13.2.0(vue@3.5.14(typescript@5.8.3))
@@ -741,6 +744,12 @@ packages:
   '@tauri-apps/plugin-window-state@2.2.2':
     resolution: {integrity: sha512-7pFwmMtGhhhE/WgmM7PUrj0BSSWVAQMfDdYbRalphIqqF1tWBvxtlxclx8bTutpXHLJTQoCpIeWtBEIXsoAlGw==}
 
+  '@tauri-store/pinia@3.6.0':
+    resolution: {integrity: sha512-89Y9HjumM+QpOdTJQwKI+mcuCKuKjw1JGZfE4PDtphyWa8uMPat1otkAl4yc1ww46Y8Hsf4FyvZJWwrzYIiNnw==}
+
+  '@tauri-store/shared@0.8.0':
+    resolution: {integrity: sha512-kTWxlED24YuAPjXdNBn9vKqwD8mdsdYGTOOr1v8CPFYr+e+vzLMyyEFP1wovyz/PZgLix0Pozi5fLFABJRRZ2Q==}
+
   '@tsconfig/node22@22.0.2':
     resolution: {integrity: sha512-Kmwj4u8sDRDrMYRoN9FDEcXD8UpBSaPQQ24Gz+Gamqfm7xxn+GBR7ge/Z7pK8OXNGyUzbSwJj+TH6B+DS/epyA==}
 
@@ -1087,6 +1096,9 @@ packages:
 
   error-stack-parser-es@0.1.5:
     resolution: {integrity: sha512-xHku1X40RO+fO8yJ8Wh2f2rZWVjqyhb1zgq1yZ8aZRQkv6OOKhKWRUaht3eSCUbAOBaKIgM+ykwFLE+QUxgGeg==}
+
+  es-toolkit@1.38.0:
+    resolution: {integrity: sha512-OT3AxczYYd3W50bCj4V0hKoOAfqIy9tof0leNQYekEDxVKir3RTVTJOLij7VAe6fsCNsGhC0JqIkURpMXTCSEA==}
 
   esbuild@0.25.4:
     resolution: {integrity: sha512-8pgjLUcUjcgDg+2Q4NYXnPbo/vncAY4UmyaCm0jZevERqCHZIaWwdJHkf8XQtu4AxSKCdvrUbT0XUr1IdZzI8Q==}
@@ -2591,6 +2603,20 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.5.0
 
+  '@tauri-store/pinia@3.6.0(typescript@5.8.3)':
+    dependencies:
+      '@tauri-apps/api': 2.5.0
+      '@tauri-store/shared': 0.8.0
+      pinia: 3.0.2(typescript@5.8.3)(vue@3.5.14(typescript@5.8.3))
+      vue: 3.5.14(typescript@5.8.3)
+    transitivePeerDependencies:
+      - typescript
+
+  '@tauri-store/shared@0.8.0':
+    dependencies:
+      '@tauri-apps/api': 2.5.0
+      es-toolkit: 1.38.0
+
   '@tsconfig/node22@22.0.2': {}
 
   '@types/estree@1.0.7': {}
@@ -3002,6 +3028,8 @@ snapshots:
   entities@4.5.0: {}
 
   error-stack-parser-es@0.1.5: {}
+
+  es-toolkit@1.38.0: {}
 
   esbuild@0.25.4:
     optionalDependencies:

@@ -2,9 +2,25 @@
 import { storeToRefs } from 'pinia';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
+import { onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 
-const { develop } = storeToRefs(useGlobalStore());
+const store = useGlobalStore();
+const { develop } = storeToRefs(store);
+const { notify } = useQuasar();
 const { clear: libClear, export: libExport, import: libImport } = useLibraryStore();
+
+onMounted(() => {
+  store.$tauri.start().catch((e) => {
+    console.error('Failed to start Tauri:', e);
+    notify({
+      type: 'negative',
+      message: '无法启动同步',
+      color: 'negative',
+      position: 'top',
+    });
+  });
+});
 </script>
 
 <template>

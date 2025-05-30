@@ -12,6 +12,7 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_pinia::init())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

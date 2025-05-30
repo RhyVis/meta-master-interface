@@ -96,8 +96,8 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
       return;
     }
 
-    // Split by whitespace, commas, slashes and seps filter out empty strings
-    const tags = trimInput.split(/[\s，,；;\\/|]+/).filter(Boolean);
+    // Split by whitespace, commas and seps filter out empty strings
+    const tags = trimInput.split(/[\s，,；;|]+/).filter(Boolean);
     const duplicatedTags = [];
 
     let added = false;

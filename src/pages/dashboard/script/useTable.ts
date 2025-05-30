@@ -1,17 +1,14 @@
-import type { QSelectOption, QTableProps } from 'quasar';
 import type { Metadata } from '@/api/types.ts';
 
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 
 import { PlatformType } from '@/api/types.ts';
-import { columns } from '@/pages/dashboard/define.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 
 export const useTable = () => {
   const { data } = storeToRefs(useLibraryStore());
 
-  const visibleColumns = ref(['title', 'alias', 'tags', 'time_created', 'time_updated']);
   const searchTag = ref('');
   const searchByRegex = ref(false);
 
@@ -45,14 +42,5 @@ export const useTable = () => {
     searchTag.value ? filterFunc.value(data.value) : data.value,
   );
 
-  const paginationOptions = ref<QSelectOption[]>(
-    columns.map((col) => ({ value: col.name, label: col.label })),
-  );
-  const pagination = ref<QTableProps['pagination']>({
-    sortBy: 'label',
-    descending: false,
-    rowsPerPage: 6,
-  });
-
-  return { visibleColumns, searchTag, searchByRegex, filteredRows, pagination, paginationOptions };
+  return { searchTag, searchByRegex, filteredRows };
 };

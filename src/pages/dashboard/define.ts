@@ -1,7 +1,8 @@
-import type { QTableColumn } from 'quasar';
+import type { QSelectOption, QTableColumn } from 'quasar';
 import type { Metadata } from '@/api/types.ts';
 
 import { date } from 'quasar';
+import { ref } from 'vue';
 
 import { PlatformType } from '@/api/types.ts';
 import { formatBytes } from '@/api/util.ts';
@@ -98,16 +99,27 @@ export const columns: QTableColumn[] = [
   {
     name: 'archive_size',
     label: '归档大小',
+    sortable: true,
     field: (row: Metadata) => formatBytes(row.archive_size),
   },
   {
     name: 'time_created',
     label: '创建时间',
-    field: (row: Metadata) => date.formatDate(row.time_created, 'YYYY-MM-DD'),
+    sortable: true,
+    sortOrder: 'ad',
+    sort: (a: string, b: string) => new Date(a).getTime() - new Date(b).getTime(),
+    field: (row: Metadata) => date.formatDate(row.time_created, 'YYYY-MM-DD HH:mm:ss'),
   },
   {
     name: 'time_updated',
     label: '更新时间',
-    field: (row: Metadata) => date.formatDate(row.time_updated, 'YYYY-MM-DD'),
+    sortable: true,
+    sortOrder: 'ad',
+    sort: (a: string, b: string) => new Date(a).getTime() - new Date(b).getTime(),
+    field: (row: Metadata) => date.formatDate(row.time_updated, 'YYYY-MM-DD HH:mm:ss'),
   },
 ];
+
+export const PaginationOptions = ref<QSelectOption[]>(
+  columns.filter((col) => col.sortable).map((col) => ({ value: col.name, label: col.label })),
+);

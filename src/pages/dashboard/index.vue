@@ -1,20 +1,22 @@
 <script lang="ts" setup>
-import { useLibraryStore } from '@/pages/dashboard/store.ts';
-import { columns } from '@/pages/dashboard/define.ts';
+import { useLibraryStore, useTableStore } from '@/pages/dashboard/store.ts';
+import { columns, PaginationOptions } from '@/pages/dashboard/define.ts';
 import { set, useToggle } from '@vueuse/core';
 import { useTable } from '@/pages/dashboard/script/useTable.ts';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import DashboardUpdate from '@/pages/dashboard/comp/DashboardUpdate.vue';
 import { openSelectFolder } from '@/api/file-dialog.ts';
 import { useQuasar } from 'quasar';
 import { ArchiveType, DeployType, type Metadata } from '@/api/types.ts';
 import { useGlobalStore } from '@/stores/global.ts';
+import { storeToRefs } from 'pinia';
 
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
 const { reload, remove, deploy, deployOff } = library;
-const { visibleColumns, searchTag, searchByRegex, filteredRows, pagination, paginationOptions } =
-  useTable();
+const tableSettings = useTableStore();
+const { visibleColumns, pagination } = storeToRefs(tableSettings);
+const { searchTag, searchByRegex, filteredRows } = useTable();
 const { notify } = useQuasar();
 
 const [updateState, toggleUpdateState] = useToggle(false);
@@ -54,6 +56,18 @@ const handleDeploy = async (id: string) => {
     });
   }
 };
+
+onMounted(() => {
+  tableSettings.$tauri.start().catch((e) => {
+    console.error('Failed to start Tauri:', e);
+    notify({
+      type: 'negative',
+      message: '无法启动同步',
+      color: 'negative',
+      position: 'top',
+    });
+  });
+});
 </script>
 
 <template>
@@ -95,8 +109,8 @@ const handleDeploy = async (id: string) => {
               </template>
             </q-input>
             <q-select
-              v-model="pagination!.sortBy"
-              :options="paginationOptions"
+              v-model="pagination.sortBy"
+              :options="PaginationOptions"
               dense
               display-value="排序"
               emit-value
@@ -106,9 +120,9 @@ const handleDeploy = async (id: string) => {
             >
               <template #after-options>
                 <div class="row items-center r-no-sel q-px-md">
-                  <div class="q-mr-xs">{{ pagination?.descending ? '降序' : '升序' }}</div>
+                  <div class="q-mr-xs">{{ pagination.descending ? '降序' : '升序' }}</div>
                   <q-checkbox
-                    v-model="pagination!.descending"
+                    v-model="pagination.descending"
                     checked-icon="fa-solid fa-sort-down"
                     color="primary"
                     keep-color

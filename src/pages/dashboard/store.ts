@@ -1,3 +1,4 @@
+import type { QTableProps } from 'quasar';
 import type { Metadata, MetadataOptional } from '@/api/types.ts';
 
 import { defineStore } from 'pinia';
@@ -253,4 +254,26 @@ export const useLibraryStore = defineStore('library', {
       }
     },
   },
+});
+
+type PaginationWrap = QTableProps['pagination'] & {
+  sortBy: string;
+  descending: boolean;
+  rowsPerPage: number;
+};
+
+interface TableState {
+  visibleColumns: string[];
+  pagination: PaginationWrap;
+}
+
+export const useTableStore = defineStore('table', {
+  state: (): TableState => ({
+    visibleColumns: ['title', 'alias', 'tags', 'time_created', 'time_updated'],
+    pagination: {
+      sortBy: 'title',
+      descending: false,
+      rowsPerPage: 6,
+    },
+  }),
 });
