@@ -1,8 +1,8 @@
-use crate::Or;
-use crate::Or::{That, This};
+use crate::Whether::{That, This};
 use crate::util::compress::{compress, decompress};
 use crate::util::config::config_get;
 use crate::util::path_ext::PathExt;
+use crate::{DIR_ARCHIVE, Whether};
 use chrono::{DateTime, Utc};
 use derive_builder::Builder;
 use fs_extra::dir;
@@ -60,16 +60,18 @@ pub enum ArchiveInfo {
 }
 
 impl ArchiveInfo {
-    pub fn try_resolve(&self) -> Or<PathBuf, ArchiveInfo> {
+    pub fn try_resolve(&self) -> Whether<PathBuf, ArchiveInfo> {
         match self {
             ArchiveInfo::Unset => {
                 warn!("ArchiveInfo is unset, cannot resolve path.");
                 That(ArchiveInfo::Unset)
             }
             ArchiveInfo::ArchiveFile { path, .. } => {
-                let path = Path::new(path);
+                let path_seg = Path::new(path);
+                // Handle relative paths by resolving them to the root directory
+                let path = config_get().resolve_to_root(path_seg);
                 if path.exists() {
-                    This(path.to_path_buf())
+                    This(path.into())
                 } else {
                     warn!(
                         "The specified archive file path does not exist: {}",
@@ -125,7 +127,7 @@ pub enum DeployInfo {
 }
 
 impl DeployInfo {
-    pub fn try_resolve(&self) -> Or<PathBuf, DeployInfo> {
+    pub fn try_resolve(&self) -> Whether<PathBuf, DeployInfo> {
         match self {
             DeployInfo::Unset => {
                 warn!("DeployInfo is unset, cannot resolve path.");
@@ -318,12 +320,12 @@ impl Metadata {
                 }
 
                 let (dir, filename) = match platform_info {
-                    Some(DistributionPlatform::Steam { id }) => ("Steam", id.to_string()),
-                    Some(DistributionPlatform::DLSite { id }) => ("DLSite", id.to_string()),
+                    Some(DistributionPlatform::Steam { id }) => ("Steam", format!("{id}.7z")),
+                    Some(DistributionPlatform::DLSite { id }) => ("DLSite", format!("{id}.7z")),
                     Some(DistributionPlatform::Other { name, id }) => (
                         "Other",
                         format!(
-                            "{name}-{}",
+                            "{name}-{}.7z",
                             id.unwrap_or_else(|| Utc::now()
                                 .format("%Y-%m-%d-%H-%M-%S")
                                 .to_string())
@@ -331,23 +333,27 @@ impl Metadata {
                     ),
                     _ => (
                         "Unknown",
-                        format!("Unknown-{}", Utc::now().format("%Y-%m-%d-%H-%M-%S")),
+                        format!("Unknown-{}.7z", Utc::now().format("%Y-%m-%d-%H-%M-%S")),
                     ),
                 };
-                let store_dir = config_get().get_archive_dir().join(dir);
-                if !store_dir.exists() {
-                    fs::create_dir_all(&store_dir)?;
-                }
-                let store_path = store_dir.join(format!("{filename}.7z"));
-                info!("Archive going to be created at: {}", store_path.display());
 
-                match compress(path, &store_path, password.as_deref(), None) {
+                let archive_seg_parent = Path::new(DIR_ARCHIVE).join(dir);
+                if !archive_seg_parent.exists() {
+                    fs::create_dir_all(&archive_seg_parent)?;
+                }
+
+                let archive_seg = archive_seg_parent.join(&filename);
+                let archive_path = config_get().resolve_to_root(&archive_seg);
+
+                info!("Archive going to be created at: {}", archive_path.display());
+
+                match compress(path, &archive_path, password.as_deref(), None) {
                     Ok(_) => {
                         info!("Successfully created archive for metadata as: {}", filename);
                         builder =
-                            builder.archive_size(store_path.calculate_size().unwrap_or_default());
+                            builder.archive_size(archive_path.calculate_size().unwrap_or_default());
                         builder = builder.archive_info(ArchiveInfo::ArchiveFile {
-                            path: store_path.to_string_lossy().to_string(),
+                            path: archive_seg.to_string_lossy().to_string(),
                             password,
                         });
                     }

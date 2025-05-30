@@ -253,7 +253,7 @@ const handlePassword = () => {
             >
               <template #control>
                 <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
-                  {{ truncateString(cArchivePath, 25) ?? '未选择文件' }}
+                  {{ truncateString(cArchivePath, 45) ?? '未选择文件' }}
                 </div>
               </template>
               <template #after>
@@ -271,7 +271,7 @@ const handlePassword = () => {
             >
               <template #control>
                 <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
-                  {{ truncateString(cArchivePath, 25) ?? '未选择文件夹' }}
+                  {{ truncateString(cArchivePath, 45) ?? '未选择文件夹' }}
                 </div>
               </template>
               <template #after>
@@ -290,7 +290,7 @@ const handlePassword = () => {
             >
               <template #control>
                 <div class="self-center full-width no-outline" @click="openPathTo(cArchivePath)">
-                  {{ truncateString(cArchivePath, 25) ?? '路径缺失' }}
+                  {{ truncateString(cArchivePath, 45) ?? '路径缺失' }}
                 </div>
               </template>
               <template #after>

@@ -3,7 +3,7 @@ members = ["src-w/core"]
 
 [workspace.package]
 description = "Metadata Master Interface"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Rhynia <rhynia_v@outlook.com>"]
 license = "GPL-3"
 edition = "2024"

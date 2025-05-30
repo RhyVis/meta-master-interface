@@ -38,6 +38,6 @@ export function command_library_import(): Promise<void> {
   return invoke('library_import');
 }
 
-export function command_util_resolve_absolute(path: string): Promise<string> {
-  return invoke('util_resolve_absolute', { path });
+export function command_util_resolve_root(path: string, abs: boolean = true): Promise<string> {
+  return invoke('util_resolve_root', { path, abs });
 }

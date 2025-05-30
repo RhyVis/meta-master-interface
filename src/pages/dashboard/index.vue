@@ -13,7 +13,8 @@ import { storeToRefs } from 'pinia';
 
 const dev = computed(() => import.meta.env.DEV || useGlobalStore().develop);
 const library = useLibraryStore();
-const { reload, remove, deploy, deployOff, totalSize } = library;
+const { reload, remove, deploy, deployOff } = library;
+const { totalSize } = storeToRefs(library);
 const tableSettings = useTableStore();
 const { visibleColumns, pagination } = storeToRefs(tableSettings);
 const { searchTag, searchByRegex, filteredRows } = useTable();
@@ -87,7 +88,7 @@ onMounted(() => {
           <q-btn-group>
             <q-btn icon="refresh" label="刷新" @click="reload" />
             <q-btn icon="add" label="添加" @click="handleUpdate()" />
-            <q-btn class="r-no-sel" :label="totalSize" />
+            <q-btn class="r-no-sel">{{ totalSize }}</q-btn>
           </q-btn-group>
         </template>
         <template #top-right>
@@ -223,7 +224,9 @@ onMounted(() => {
                     icon="edit"
                     size="sm"
                     @click="handleUpdate((props.row as Metadata).id)"
-                  />
+                  >
+                    <q-tooltip> 编辑条目 </q-tooltip>
+                  </q-btn>
                   <q-btn color="negative" flat icon="delete" size="sm">
                     <q-tooltip> 删除条目 </q-tooltip>
                     <q-popup-proxy>

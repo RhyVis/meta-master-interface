@@ -37,7 +37,7 @@ pub fn run() {
             library_clear,
             library_export,
             library_import,
-            util_resolve_absolute
+            util_resolve_root
         ])
         .run(generate_context!())
         .expect("Failed to start application");

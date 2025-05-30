@@ -258,14 +258,14 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
           set(cArchivePassword, '');
         }
 
+        Object.assign(edit.value, clone);
+      } else {
+        reset();
+
         if (!get(mode)) {
           console.log('Creating new item, setting archive creation flag to true');
           set(fCreateArchive, true);
         }
-
-        Object.assign(edit.value, clone);
-      } else {
-        reset();
       }
     },
     { immediate: true },

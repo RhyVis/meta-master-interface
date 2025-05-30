@@ -1,7 +1,7 @@
 use m_core::data::library::*;
 use m_core::data::metadata::{Metadata, MetadataOptional};
 use m_core::util::ToStringErr;
-use std::env::current_dir;
+use m_core::util::config::config_get;
 use std::path::PathBuf;
 use tauri::command;
 
@@ -53,11 +53,25 @@ pub fn library_import() -> CommandResult<()> {
 }
 
 #[command]
-pub fn util_resolve_absolute(path: &str) -> CommandResult<String> {
-    current_dir()
-        .unwrap_or(PathBuf::from("."))
-        .join(path)
-        .canonicalize()
-        .map(|p| p.to_string_lossy().to_string())
-        .map_err(|e| format!("Unable to resolve path: {e}"))
+pub fn util_resolve_root(path: &str, abs: bool) -> CommandResult<String> {
+    let mut root = if abs {
+        config_get().get_root_absolute()
+    } else {
+        config_get().get_root()
+    };
+
+    if !path.is_empty() {
+        let path_buf = PathBuf::from(path);
+        if path_buf.is_absolute() {
+            root = path_buf;
+        } else {
+            root.push(path_buf);
+        }
+    }
+
+    if root.exists() {
+        Ok(root.display().to_string())
+    } else {
+        Err(format!("Path does not exist: {}", root.display()))
+    }
 }

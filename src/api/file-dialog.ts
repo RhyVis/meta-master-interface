@@ -1,6 +1,6 @@
 import { Notify } from 'quasar';
 
-import { command_util_resolve_absolute } from '@/api/command.ts';
+import { command_util_resolve_root } from '@/api/command.ts';
 import { open } from '@tauri-apps/plugin-dialog';
 import { openPath } from '@tauri-apps/plugin-opener';
 
@@ -55,7 +55,7 @@ export async function openPathTo(path?: string) {
     return;
   } else {
     try {
-      await openPath(await command_util_resolve_absolute(path));
+      await openPath(await command_util_resolve_root(path));
     } catch (e) {
       console.error(e);
       Notify.create({
