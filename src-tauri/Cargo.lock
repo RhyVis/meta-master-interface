@@ -2405,9 +2405,14 @@ version = "1.1.0"
 dependencies = [
  "reqwest",
  "scraper",
+ "serde",
  "thiserror 2.0.12",
  "tokio",
 ]
+
+[[package]]
+name = "m-common"
+version = "1.1.0"
 
 [[package]]
 name = "m-core"
@@ -2419,6 +2424,7 @@ dependencies = [
  "derive_builder",
  "fs_extra",
  "log",
+ "m-api",
  "redb",
  "serde",
  "serde_json",
@@ -2526,6 +2532,8 @@ name = "mmi"
 version = "1.1.0"
 dependencies = [
  "log",
+ "m-api",
+ "m-common",
  "m-core",
  "serde",
  "serde_json",

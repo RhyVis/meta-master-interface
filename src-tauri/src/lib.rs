@@ -37,7 +37,8 @@ pub fn run() {
             library_clear,
             library_export,
             library_import,
-            util_resolve_root
+            util_resolve_root,
+            api_fetch_dl_site_maniax
         ])
         .run(generate_context!())
         .expect("Failed to start application");

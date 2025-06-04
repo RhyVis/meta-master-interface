@@ -1,4 +1,4 @@
-import type { Metadata, MetadataOptional } from '@/api/types.ts';
+import type { DLSiteInfo, Metadata, MetadataOptional } from '@/api/types.ts';
 
 import { invoke } from '@tauri-apps/api/core';
 
@@ -40,4 +40,8 @@ export function command_library_import(): Promise<void> {
 
 export function command_util_resolve_root(path: string, abs: boolean = true): Promise<string> {
   return invoke('util_resolve_root', { path, abs });
+}
+
+export function command_api_fetch_dl_site_maniax(id: string): Promise<DLSiteInfo> {
+  return invoke('api_fetch_dl_site_maniax', { id });
 }

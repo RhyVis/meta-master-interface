@@ -1,5 +1,5 @@
 [workspace]
-members = [ "src-w/api","src-w/core"]
+members = ["src-w/api", "src-w/common", "src-w/core"]
 
 [workspace.package]
 description = "Metadata Master Interface"
@@ -28,7 +28,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+m-common = { path = "src-w/common" }
 m-core = { path = "src-w/core" }
+m-api = { path = "src-w/api" }
 tauri = { version = "2", features = [] }
 tauri-plugin-log = "2"
 log.workspace = true

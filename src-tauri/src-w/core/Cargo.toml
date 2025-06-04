@@ -7,6 +7,7 @@ license.workspace = true
 edition.workspace = true
 
 [dependencies]
+m-api = { path = "../api" }
 log.workspace = true
 serde.workspace = true
 toml = "0.8"

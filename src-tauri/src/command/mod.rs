@@ -1,6 +1,8 @@
+use log::info;
+use m_api::http::dl_site::{DLSiteInfo, Language, fetch_dl_site_maniax};
+use m_common::ToStringErr;
 use m_core::data::library::*;
 use m_core::data::metadata::{Metadata, MetadataOptional};
-use m_core::util::ToStringErr;
 use m_core::util::config::config_get;
 use std::path::PathBuf;
 use tauri::command;
@@ -74,4 +76,10 @@ pub fn util_resolve_root(path: &str, abs: bool) -> CommandResult<String> {
     } else {
         Err(format!("Path does not exist: {}", root.display()))
     }
+}
+
+#[command]
+pub async fn api_fetch_dl_site_maniax(id: &str) -> CommandResult<DLSiteInfo> {
+    info!("Requesting DL Site Maniax info for ID: {id}");
+    fetch_dl_site_maniax(id, Language::ZhCn).await.string_err()
 }

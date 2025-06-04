@@ -131,3 +131,15 @@ export type MetadataOptional = RequireFields<
   Partial<Metadata>,
   'title' | 'alias' | 'tags' | 'platform' | 'archive_info'
 >;
+
+// API
+
+export type DLSiteInfo = {
+  title: string;
+  circle: string;
+  scenario: string[];
+  illustration: string[];
+  category: string[];
+  tags: string[];
+  description: string[];
+};

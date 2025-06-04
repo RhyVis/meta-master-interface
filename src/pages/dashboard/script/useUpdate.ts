@@ -6,13 +6,14 @@ import { cloneDeep } from 'lodash-es';
 import { useQuasar } from 'quasar';
 import { computed, ref, watch } from 'vue';
 
+import { command_api_fetch_dl_site_maniax } from '@/api/command.ts';
 import { ArchiveType, ContentType, PlatformType } from '@/api/types.ts';
 import { removeEmptyStrings } from '@/api/util.ts';
 import { useLibraryStore } from '@/pages/dashboard/store.ts';
 import { get, set } from '@vueuse/core';
 
 export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
-  const { notify } = useQuasar();
+  const { notify, loading } = useQuasar();
   const library = useLibraryStore();
   const current = computed<MetadataOptional | undefined>(() =>
     library.data.find((val) => val.id === id.value),
@@ -178,6 +179,50 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
     }
   };
 
+  const apiFetchDLInfo = async () => {
+    if (cPlatformType.value == PlatformType.DLSite && cPlatformID.value) {
+      try {
+        loading.show({
+          message: `获取 ${get(cPlatformID)} 信息...`,
+        });
+        const fetch = await command_api_fetch_dl_site_maniax(get(cPlatformID));
+        if (!edit.value.title) {
+          edit.value.title = fetch.title;
+        }
+        if (!edit.value.developer) {
+          edit.value.developer = fetch.circle;
+        }
+        if (!edit.value.publisher) {
+          edit.value.publisher = fetch.circle;
+        }
+        if (!edit.value.description) {
+          edit.value.description = fetch.description.join('\n');
+        }
+        fetch.tags.forEach((tag) => {
+          if (!edit.value.tags.includes(tag)) {
+            edit.value.tags.push(tag);
+          }
+        });
+        notify({
+          message: 'DLSite Maniax 信息获取成功',
+          color: 'positive',
+          position: 'top',
+          icon: 'check_circle',
+        });
+      } catch (e) {
+        console.error('Failed to fetch DLSite Maniax info:', e);
+        notify({
+          message: '获取 DLSite Maniax 信息失败',
+          color: 'negative',
+          position: 'top',
+          icon: 'warning',
+        });
+      } finally {
+        loading.hide();
+      }
+    }
+  };
+
   const doUpdate = async (): Promise<boolean> => {
     if (await formRef.value.validate()) {
       edit.value.platform = mapPlatform();
@@ -293,5 +338,6 @@ export const useUpdate = (id: Ref<string>, formRef: Ref<QForm>) => {
     cArchiveType,
     cArchivePath,
     cArchivePassword,
+    apiFetchDLInfo,
   };
 };

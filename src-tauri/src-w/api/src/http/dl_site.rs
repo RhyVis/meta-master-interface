@@ -1,7 +1,9 @@
 use crate::http::HttpResult;
+use reqwest::Client;
 use scraper::{Html, Selector};
+use serde::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct DLSiteInfo {
     pub title: String,
     pub circle: String,
@@ -45,11 +47,16 @@ impl Language {
 }
 
 pub async fn fetch_dl_site_maniax(id: &str, language: Language) -> HttpResult<DLSiteInfo> {
+    let client = Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()?;
+
     let url = format!(
         "https://www.dlsite.com/maniax/work/=/product_id/{id}.html/?locale={}",
         language.as_lang_code()
     );
-    let document = Html::parse_document(reqwest::get(url).await?.text().await?.as_str());
+    let response = client.get(&url).send().await?;
+    let document = Html::parse_document(response.text().await?.as_str());
 
     let title_selector = Selector::parse("#work_name")?;
     let title = document
@@ -147,5 +154,11 @@ mod test {
             .await
             .expect("fetch dl site maniax");
         dbg!(result2);
+
+        let faulty_id = "RJ00000000"; // Invalid ID for testing error handling
+        let result3 = fetch_dl_site_maniax(faulty_id, Language::EnUs)
+            .await
+            .expect("fetch dl site maniax");
+        dbg!(result3);
     }
 }

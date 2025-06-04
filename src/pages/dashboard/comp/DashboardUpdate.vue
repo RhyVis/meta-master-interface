@@ -42,6 +42,7 @@ const {
   cArchiveType,
   cArchivePath,
   cArchivePassword,
+  apiFetchDLInfo,
 } = useUpdate(value, formRef as Ref<QForm>);
 
 const emit = defineEmits<{
@@ -63,6 +64,7 @@ const handleSelectPath = async (fileMode: boolean) => {
     const path = await openSelectFolder();
     if (path) {
       set(cArchivePath, path);
+      handlePassword();
     }
   }
 };
@@ -201,7 +203,13 @@ const handlePassword = () => {
               hint="平台 ID"
               label="ID"
               lazy-rules
-            />
+            >
+              <template #append>
+                <q-btn :disable="!cPlatformID" dense flat icon="web" @click="apiFetchDLInfo">
+                  <q-tooltip>从DLSite获取元数据</q-tooltip>
+                </q-btn>
+              </template>
+            </q-input>
           </div>
           <div v-else-if="cPlatformType == PlatformType.Other">
             <q-input

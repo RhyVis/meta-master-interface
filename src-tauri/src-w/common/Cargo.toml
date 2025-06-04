@@ -1,5 +1,5 @@
 [package]
-name = "m-api"
+name = "m-common"
 description.workspace = true
 version.workspace = true
 authors.workspace = true
@@ -7,8 +7,3 @@ license.workspace = true
 edition.workspace = true
 
 [dependencies]
-reqwest = "0.12"
-scraper = "0.23"
-thiserror = "2"
-serde.workspace = true
-tokio = { version = "1.45", features = ["macros"] }
